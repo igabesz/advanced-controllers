@@ -9,11 +9,17 @@
     "ES2015",
     "decorators",
     "express",
+    "express.js",
     "MVC",
-    "controllers"
+    "controllers",
+    "typescript"
   ],
   "directories": {
     "test": "tests"
+  },
+  "typings": "./index.d.ts",
+  "typescript": {
+    "definition": "index.d.ts"
   },
   "dependencies": {
     "lodash": "^4.6.1"
@@ -28,6 +34,17 @@
   "scripts": {
     "test": "mocha tests/test"
   },
-  "author": "",
-  "license": "ISC"
+  "author": {
+    "name": "Gábor IMRE",
+    "email": "imre.gabesz@gmail.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/igabesz/advanced-controllers.git"
+  },
+  "bugs": {
+    "url": "https://github.com/igabesz/advanced-controllers/issues"
+  },
+  "homepage": "https://github.com/igabesz/advanced-controllers#readme"
 }
