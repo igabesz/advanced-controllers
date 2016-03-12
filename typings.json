@@ -1,0 +1,15 @@
+{
+  "name": "express-decorators",
+  "version": false,
+  "dependencies": {
+    "lodash": "registry:npm/lodash#4.0.0+20160305082308",
+    "request": "registry:npm/request#2.69.0+20160304121250"
+  },
+  "ambientDependencies": {
+    "assert": "registry:dt/assert#0.0.0+20141113144614",
+    "body-parser": "registry:dt/body-parser#0.0.0+20160112113357",
+    "express": "registry:dt/express#4.0.0+20160208031452",
+    "mocha": "registry:dt/mocha#2.2.5+20151023103246",
+    "node": "registry:dt/node#4.0.0+20160311162451"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "advanced-controllers",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "keywords": [
+    "ES6",
+    "ES7",
+    "ES2015",
+    "decorators",
+    "express",
+    "MVC",
+    "controllers"
+  ],
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "lodash": "^4.6.1"
+  },
+  "devDependencies": {
+    "assert": "^1.3.0",
+    "body-parser": "^1.15.0",
+    "express": "^4.13.4",
+    "mocha": "^2.4.5",
+    "request": "^2.69.0"
+  },
+  "scripts": {
+    "test": "mocha tests/test"
+  },
+  "author": "",
+  "license": "ISC"
+}
