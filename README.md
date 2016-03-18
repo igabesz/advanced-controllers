@@ -8,6 +8,8 @@ Features:
 * Return value handling (data, exception, Promise)
 * Written in TypeScript, compiled to ES5
 
+See the tests for examples.
+
 
 ## MVC Features
 
@@ -175,4 +177,4 @@ class MiddlewareTestController extends web.BaseController {
 
 **Caveats:**
 
-* A tricky one: if you specify the middleware function with Arrow Syntax (`() => {}`) then the `this` reference won't refer to the controller instance when the middleware is called. This reason is TS/ES6 to ES5 transpilation: the `this` reference changes in the process and I could not bind it.
+* A tricky one: if you specify the middleware function with Arrow Syntax (`() => {}`) then the `this` reference won't refer to the controller instance when the middleware is called. The reason is TS/ES6 to ES5 transpilation: the `this` reference changes in the process and I could not bind it.
