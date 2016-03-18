@@ -153,11 +153,11 @@ function registerControllerFunction(thisBind: any, app: express.Express, actionF
 
 	let controllerName = thisBind.constructor.__controller.name;
 	let url = controllerName + action.url;
-	logger && logger(`Registering ${action.method} ${url} [${action.params.map(p => p.name)}]`);
+	logger && logger('debug', `Registering ${action.method} ${url} [${action.params.map(p => p.name)}]`);
 
 	// Applying middleware
 	for (let mwFunc of action.middlewares) {
-		logger && logger(`Registering ${action.method} ${url} *MW*`, { thisBind, mwFunc });
+		logger && logger('debug', `Registering ${action.method} ${url} *MW*`, { thisBind, mwFunc });
 		app.use(url, mwFunc.bind(thisBind));
 	}
 
@@ -208,7 +208,7 @@ function registerControllerFunction(thisBind: any, app: express.Express, actionF
 				(<any>result)
 				.then(response => (result !== undefined) ? res.json(response) : close(res, 200))
 				.catch(ex => {
-					logger && logger('Something broke (Promise)', { ex: ex, message: ex.message, stack: ex.stack });
+					(!ex.statusCode) && logger && logger('error', 'Something broke (Promise)', { ex: ex, message: ex.message, stack: ex.stack });
 					close(res, ex.statusCode || 500);
 				});
 			}
@@ -219,7 +219,7 @@ function registerControllerFunction(thisBind: any, app: express.Express, actionF
 		}
 		// Internal error
 		catch (ex) {
-			logger && logger('Something broke (Exception)', { ex: ex, message: ex.message, stack: ex.stack });
+			(!ex.statusCode) && logger && logger('error', 'Something broke (Exception)', { ex: ex, message: ex.message, stack: ex.stack });
 			close(res, ex.statusCode || 500);
 		}
 	};
@@ -256,7 +256,7 @@ function registerController(controller: BaseController, app: express.Express, lo
 }
 
 export abstract class BaseController {
-	register(app: express.Express, logger: Function = console.log.bind(console)) {
+	register(app: express.Express, logger: (level: 'debug' | 'error', message: string, meta: any) => void = console.log.bind(console)) {
 		registerController(this, app, logger);
 	}
 }
