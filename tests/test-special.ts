@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as assert from 'assert';
 import * as request from 'request';
 
-import * as web from '../index';
+import * as web from '../lib/index';
 import { app, baseUrl } from './test-base';
 
 
@@ -10,13 +10,13 @@ declare var Promise;
 var localBaseUrl = baseUrl + 'returns/';
 
 
-class MissingDecoratorController extends web.ControllerBase {
+class MissingDecoratorController extends web.BaseController {
 	@web.get()
 	anything() {}
 }
 
 @web.controller('some')
-class SomeController extends web.ControllerBase {
+class SomeController extends web.BaseController {
 	mwCalled = false;
 
 	@web.middleware(function(req, res, next) { this.mwCalled = true; next(); })
@@ -26,7 +26,7 @@ class SomeController extends web.ControllerBase {
 
 
 @web.controller('some2')
-class SomeController2 extends web.ControllerBase {
+class SomeController2 extends web.BaseController {
 	nohttpmethod(
 		@web.queryNumber('value') value: number
 	) {}

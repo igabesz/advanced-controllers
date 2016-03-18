@@ -3,9 +3,9 @@ import * as bodyParser from 'body-parser';
 import * as assert from 'assert';
 
 
-export var app = express();
 export var port = 8080;
 export var baseUrl = `http://localhost:${port}/`;
+export var app = express();
 app.use(bodyParser.json());
 
 

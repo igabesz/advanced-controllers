@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as assert from 'assert';
 import * as request from 'request';
 
-import * as web from '../index';
+import * as web from '../lib/index';
 import { app, baseUrl } from './test-base';
 
 
@@ -11,7 +11,7 @@ var localBaseUrl = baseUrl + 'returns/';
 
 
 @web.controller('returns')
-class ReturnsTestController extends web.ControllerBase {
+class ReturnsTestController extends web.BaseController {
 	@web.get('get-promise')
 	getPromise(
 		@web.queryNumber('value') value: number

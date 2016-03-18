@@ -19,6 +19,6 @@ export declare function queryString(name: string, optional?: boolean): (target: 
 export declare function queryNumber(name: string, optional?: boolean): (target: Object, propertyKey: string | symbol, parameterIndex: number) => void;
 export declare function queryObject(name: string, optional?: boolean): (target: Object, propertyKey: string | symbol, parameterIndex: number) => void;
 export declare function queryArray(name: string, optional?: boolean): (target: Object, propertyKey: string | symbol, parameterIndex: number) => void;
-export declare abstract class ControllerBase {
+export declare abstract class BaseController {
     register(app: express.Express, logger?: Function): void;
 }

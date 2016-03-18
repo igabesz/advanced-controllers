@@ -17,7 +17,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 var assert = require('assert');
-var web = require('../index');
+var web = require('../lib/index');
 var test_base_1 = require('./test-base');
 var localBaseUrl = test_base_1.baseUrl + 'returns/';
 var MissingDecoratorController = (function (_super) {
@@ -33,7 +33,7 @@ var MissingDecoratorController = (function (_super) {
         __metadata('design:returntype', void 0)
     ], MissingDecoratorController.prototype, "anything", null);
     return MissingDecoratorController;
-}(web.ControllerBase));
+}(web.BaseController));
 var SomeController = (function (_super) {
     __extends(SomeController, _super);
     function SomeController() {
@@ -52,7 +52,7 @@ var SomeController = (function (_super) {
         __metadata('design:paramtypes', [])
     ], SomeController);
     return SomeController;
-}(web.ControllerBase));
+}(web.BaseController));
 var SomeController2 = (function (_super) {
     __extends(SomeController2, _super);
     function SomeController2() {
@@ -70,7 +70,7 @@ var SomeController2 = (function (_super) {
         __metadata('design:paramtypes', [])
     ], SomeController2);
     return SomeController2;
-}(web.ControllerBase));
+}(web.BaseController));
 describe('Various Error Checks', function () {
     it('should not register not-decorated class', function () {
         var ctrl = new MissingDecoratorController();
@@ -91,4 +91,3 @@ describe('Various Error Checks', function () {
         });
     });
 });
-//# sourceMappingURL=test-special.js.map

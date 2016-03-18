@@ -4,16 +4,15 @@
         "module": "commonjs",
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
-        "declaration": true,
+        "declaration": false,
         "noImplicitAny": false,
-        "removeComments": true,
+        "removeComments": false,
         "preserveConstEnums": true,
-        "sourceMap": true
+        "sourceMap": false
     },
     "filesGlob": [
-        "./typings/main.d.ts",
-        "./index.ts",
-        "./tests/*.ts"
+        "../typings/main.d.ts",
+        "./*.ts"
     ],
     "atom": {
         "rewriteTsconfig": false

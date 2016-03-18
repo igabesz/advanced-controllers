@@ -241,7 +241,7 @@ function getAllFuncs(obj) {
 	});
 }
 
-function registerController(controller: ControllerBase, app: express.Express, logger: Function) {
+function registerController(controller: BaseController, app: express.Express, logger: Function) {
 	let ctor = (<any>controller.constructor);
 	if (!ctor || !ctor.__controller || !ctor.__controller.name) {
 		throw new Error('Must use @controller decoration on controller!');
@@ -255,7 +255,7 @@ function registerController(controller: ControllerBase, app: express.Express, lo
 	}
 }
 
-export abstract class ControllerBase {
+export abstract class BaseController {
 	register(app: express.Express, logger: Function = console.log.bind(console)) {
 		registerController(this, app, logger);
 	}

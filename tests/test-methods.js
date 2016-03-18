@@ -15,7 +15,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var assert = require('assert');
 var request = require('request');
-var web = require('../index');
+var web = require('../lib/index');
 var test_base_1 = require('./test-base');
 var localBaseUrl = test_base_1.baseUrl + 'methods/';
 var MethodTestController = (function (_super) {
@@ -56,7 +56,7 @@ var MethodTestController = (function (_super) {
         __metadata('design:paramtypes', [])
     ], MethodTestController);
     return MethodTestController;
-}(web.ControllerBase));
+}(web.BaseController));
 describe('MethodTestController', function () {
     var ctrl;
     var assertAndParse = function (err, res, body) {
@@ -97,4 +97,3 @@ describe('MethodTestController', function () {
         });
     });
 });
-//# sourceMappingURL=test-methods.js.map

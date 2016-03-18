@@ -19,7 +19,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 var _ = require('lodash');
 var assert = require('assert');
 var request = require('request');
-var web = require('../index');
+var web = require('../lib/index');
 var test_base_1 = require('./test-base');
 var localBaseUrl = test_base_1.baseUrl + 'binding/';
 var BindingTestController = (function (_super) {
@@ -95,7 +95,7 @@ var BindingTestController = (function (_super) {
         __metadata('design:paramtypes', [])
     ], BindingTestController);
     return BindingTestController;
-}(web.ControllerBase));
+}(web.BaseController));
 describe('BindingTestController', function () {
     var mainController;
     var generalAssert = function (err, res) {
@@ -177,4 +177,4 @@ describe('BindingTestController', function () {
         });
     });
 });
-//# sourceMappingURL=test-bindings.js.map
+/**/

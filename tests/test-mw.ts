@@ -3,7 +3,7 @@ import * as mocha from 'mocha';
 import * as assert from 'assert';
 import * as request from 'request';
 
-import * as web from '../index';
+import * as web from '../lib/index';
 import { app, baseUrl } from './test-base';
 
 
@@ -11,7 +11,7 @@ var localBaseUrl = baseUrl + 'middleware/';
 
 
 @web.controller('middleware')
-class MiddlewareTestController extends web.ControllerBase {
+class MiddlewareTestController extends web.BaseController {
 	middlewareCalled = false;
 
 	@web.get('no-middleware')

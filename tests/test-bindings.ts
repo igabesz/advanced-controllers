@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as assert from 'assert';
 import * as request from 'request';
 
-import * as web from '../index';
+import * as web from '../lib/index';
 import { app, baseUrl } from './test-base';
 
 
@@ -10,7 +10,7 @@ var localBaseUrl = baseUrl + 'binding/';
 
 
 @web.controller('binding')
-class BindingTestController extends web.ControllerBase {
+class BindingTestController extends web.BaseController {
 	items = [];
 	message: string = null;
 

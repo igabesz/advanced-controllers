@@ -18,7 +18,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 var assert = require('assert');
 var request = require('request');
-var web = require('../index');
+var web = require('../lib/index');
 var test_base_1 = require('./test-base');
 var localBaseUrl = test_base_1.baseUrl + 'returns/';
 var ReturnsTestController = (function (_super) {
@@ -59,7 +59,7 @@ var ReturnsTestController = (function (_super) {
         __metadata('design:paramtypes', [])
     ], ReturnsTestController);
     return ReturnsTestController;
-}(web.ControllerBase));
+}(web.BaseController));
 describe('ReturnsTestController', function () {
     var mainController;
     var generalAssert = function (err, res) {
@@ -85,4 +85,3 @@ describe('ReturnsTestController', function () {
         });
     });
 });
-//# sourceMappingURL=test-returns.js.map

@@ -3,7 +3,7 @@ import * as mocha from 'mocha';
 import * as assert from 'assert';
 import * as request from 'request';
 
-import * as web from '../index';
+import * as web from '../lib/index';
 import { app, baseUrl } from './test-base';
 
 
@@ -11,7 +11,7 @@ var localBaseUrl = baseUrl + 'methods/';
 
 
 @web.controller('methods')
-class MethodTestController extends web.ControllerBase {
+class MethodTestController extends web.BaseController {
 	@web.get()
 	get() { return 'get'; }
 

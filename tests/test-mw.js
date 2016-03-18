@@ -16,7 +16,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var _this = this;
 var assert = require('assert');
 var request = require('request');
-var web = require('../index');
+var web = require('../lib/index');
 var test_base_1 = require('./test-base');
 var localBaseUrl = test_base_1.baseUrl + 'middleware/';
 var MiddlewareTestController = (function (_super) {
@@ -73,7 +73,7 @@ var MiddlewareTestController = (function (_super) {
         __metadata('design:paramtypes', [])
     ], MiddlewareTestController);
     return MiddlewareTestController;
-}(web.ControllerBase));
+}(web.BaseController));
 describe('MiddlewareTestController', function () {
     var ctrl;
     var assertAndParse = function (err, res, body) {
@@ -84,6 +84,7 @@ describe('MiddlewareTestController', function () {
     before(function () {
         ctrl = new MiddlewareTestController();
         ctrl.register(test_base_1.app, function () { });
+        // ctrl.register(app);
     });
     beforeEach(function () {
         ctrl.middlewareCalled = false;
@@ -117,4 +118,4 @@ describe('MiddlewareTestController', function () {
         });
     });
 });
-//# sourceMappingURL=test-mw.js.map
+//
