@@ -1,3 +1,4 @@
+*.js.map
 .atomignore
 .editorconfig
 typings.json
