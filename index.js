@@ -121,7 +121,7 @@ function registerControllerFunction(thisBind, app, actionFunc, logger) {
     logger && logger("Registering " + action.method + " " + url + " [" + action.params.map(function (p) { return p.name; }) + "]");
     for (var _i = 0, _a = action.middlewares; _i < _a.length; _i++) {
         var mwFunc = _a[_i];
-        logger && logger("Registering " + action.method + " " + url + " *MW*", thisBind, mwFunc);
+        logger && logger("Registering " + action.method + " " + url + " *MW*", { thisBind: thisBind, mwFunc: mwFunc });
         app.use(url, mwFunc.bind(thisBind));
     }
     var actionProcessor = function (req, res) {
@@ -171,7 +171,7 @@ function registerControllerFunction(thisBind, app, actionFunc, logger) {
                 result_1
                     .then(function (response) { return (result_1 !== undefined) ? res.json(response) : close(res, 200); })
                     .catch(function (ex) {
-                    logger && logger('Something broke', ex, ex.message, ex.stack);
+                    logger && logger('Something broke (Promise)', { ex: ex, message: ex.message, stack: ex.stack });
                     close(res, ex.statusCode || 500);
                 });
             }
@@ -180,7 +180,7 @@ function registerControllerFunction(thisBind, app, actionFunc, logger) {
             }
         }
         catch (ex) {
-            logger && logger('Something broke', ex, ex.message, ex.stack);
+            logger && logger('Something broke (Exception)', { ex: ex, message: ex.message, stack: ex.stack });
             close(res, ex.statusCode || 500);
         }
     };

@@ -157,7 +157,7 @@ function registerControllerFunction(thisBind: any, app: express.Express, actionF
 
 	// Applying middleware
 	for (let mwFunc of action.middlewares) {
-		logger && logger(`Registering ${action.method} ${url} *MW*`, thisBind, mwFunc);
+		logger && logger(`Registering ${action.method} ${url} *MW*`, { thisBind, mwFunc });
 		app.use(url, mwFunc.bind(thisBind));
 	}
 
@@ -208,7 +208,7 @@ function registerControllerFunction(thisBind: any, app: express.Express, actionF
 				(<any>result)
 				.then(response => (result !== undefined) ? res.json(response) : close(res, 200))
 				.catch(ex => {
-					logger && logger('Something broke', ex, ex.message, ex.stack);
+					logger && logger('Something broke (Promise)', { ex: ex, message: ex.message, stack: ex.stack });
 					close(res, ex.statusCode || 500);
 				});
 			}
@@ -219,7 +219,7 @@ function registerControllerFunction(thisBind: any, app: express.Express, actionF
 		}
 		// Internal error
 		catch (ex) {
-			logger && logger('Something broke', ex, ex.message, ex.stack);
+			logger && logger('Something broke (Exception)', { ex: ex, message: ex.message, stack: ex.stack });
 			close(res, ex.statusCode || 500);
 		}
 	};
