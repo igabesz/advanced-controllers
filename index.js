@@ -186,13 +186,27 @@ function registerControllerFunction(thisBind, app, actionFunc, logger) {
     };
     app[_.toLower(action.method)](url, actionProcessor);
 }
+function getAllFuncs(obj) {
+    var props = [];
+    var protoObj = obj;
+    while (protoObj) {
+        props = props.concat(Object.getOwnPropertyNames(protoObj));
+        protoObj = Object.getPrototypeOf(protoObj);
+    }
+    return props.sort().filter(function (e, i, arr) {
+        if (e !== arr[i + 1] && typeof obj[e] === 'function')
+            return true;
+    });
+}
 function registerController(controller, app, logger) {
     var ctor = controller.constructor;
     if (!ctor || !ctor.__controller || !ctor.__controller.name) {
         throw new Error('Must use @controller decoration on controller!');
     }
-    for (var key in controller.constructor.prototype) {
-        var action = controller.constructor.prototype[key];
+    var funcNames = getAllFuncs(controller);
+    for (var _i = 0, funcNames_1 = funcNames; _i < funcNames_1.length; _i++) {
+        var name_1 = funcNames_1[_i];
+        var action = ctor.prototype[name_1];
         if (getHttpAction(action) !== null) {
             registerControllerFunction(controller, app, action, logger);
         }

@@ -205,7 +205,7 @@ function registerControllerFunction(thisBind: any, app: express.Express, actionF
 				return close(res, 200);
 			// Promise result -> Wait for it
 			else if (result instanceof Promise) {
-				(<Promise<any>>result)
+				(<any>result)
 				.then(response => (result !== undefined) ? res.json(response) : close(res, 200))
 				.catch(ex => {
 					logger && logger('Something broke', ex, ex.message, ex.stack);
@@ -228,13 +228,27 @@ function registerControllerFunction(thisBind: any, app: express.Express, actionF
 	app[_.toLower(action.method)](url, actionProcessor);
 }
 
+// https://stackoverflow.com/questions/31054910/get-functions-methods-of-a-class
+function getAllFuncs(obj) {
+	var props = [];
+	let protoObj = obj;
+	while (protoObj) {
+		props = props.concat(Object.getOwnPropertyNames(protoObj));
+		protoObj = Object.getPrototypeOf(protoObj);
+	}
+	return props.sort().filter(function(e, i, arr) {
+		if (e !== arr[i+1] && typeof obj[e] === 'function') return true;
+	});
+}
+
 function registerController(controller: ControllerBase, app: express.Express, logger: Function) {
 	let ctor = (<any>controller.constructor);
 	if (!ctor || !ctor.__controller || !ctor.__controller.name) {
 		throw new Error('Must use @controller decoration on controller!');
 	}
-	for (let key in controller.constructor.prototype) {
-		let action = controller.constructor.prototype[key];
+	let funcNames = getAllFuncs(controller);
+	for (let name of funcNames) {
+		let action = ctor.prototype[name];
 		if (getHttpAction(action) !== null) {
 			registerControllerFunction(controller, app, action, logger);
 		}
