@@ -157,7 +157,7 @@ function registerControllerFunction(thisBind: any, app: express.Express, actionF
 
 	// Applying middleware
 	for (let mwFunc of action.middlewares) {
-		logger && logger('debug', `Registering ${action.method} ${url} *MW*`, { thisBind, mwFunc });
+		logger && logger('debug', `Registering ${action.method} ${url} *MW*`);
 		app.use(url, mwFunc.bind(thisBind));
 	}
 
