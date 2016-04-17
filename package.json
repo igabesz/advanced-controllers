@@ -1,12 +1,13 @@
 {
   "name": "advanced-controllers",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "",
   "main": "lib/index.js",
   "keywords": [
     "ES6",
     "ES7",
     "ES2015",
+    "annotations",
     "decorators",
     "express",
     "express.js",
