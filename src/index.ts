@@ -141,11 +141,11 @@ export var body: {
 	/** Bind a member of the request.body object */
 	(name: string, type: any, optional?: boolean): (target: Object, propertyKey: string | symbol, parameterIndex: number) => void;
 } =
-function(name: string | any, type?: any, optional?: boolean) {
-	if (typeof name === 'string') {
-		return addParamBinding(name, optional, 'body', type);
+function(nameOrType: string | any, type?: any, optional?: boolean) {
+	if (typeof nameOrType === 'string') {
+		return addParamBinding(nameOrType, optional, 'body', type);
 	}
-	return addParamBinding(null, false, 'full-body', type);
+	return addParamBinding(null, false, 'full-body', nameOrType);
 };
 
 export function queryString(name: string, optional?: boolean) { obsWarn('queryString', 'query'); return addParamBinding(name, optional, 'query', String); }
@@ -275,7 +275,7 @@ function registerControllerFunction(thisBind: any, app: express.Express, actionF
 			continue;
 		}
 		// Query: we DON'T have body-parser here
-		else if (bind.from === 'query') {
+		if (bind.from === 'query') {
 			if (!validator.parse) throw new Error(`No parser in validator for type: ${bind.type}; required when binding to query params`);
 			binders.push((params: any[], req: Req, res: Res) => {
 				let value = req.query[bind.name];
@@ -288,6 +288,7 @@ function registerControllerFunction(thisBind: any, app: express.Express, actionF
 				if (!validator.check(parsed)) throw new Error(`Invalid value: ${bind.name} should be a ${bind.type}`);
 				params[bind.index] = parsed;
 			});
+			continue;
 		}
 	}
 
