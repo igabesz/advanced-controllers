@@ -137,15 +137,15 @@ export function bodyObject(name: string, optional?: boolean) { obsWarn('bodyObje
 export function bodyArray(name: string, optional?: boolean) { obsWarn('bodyArray', 'body'); return addParamBinding(name, optional, 'body', Array); }
 export var body: {
 	/** Bind the whole request.body object */
-	(type: any): (target: Object, propertyKey: string | symbol, parameterIndex: number) => void;
+	(type?: any): (target: Object, propertyKey: string | symbol, parameterIndex: number) => void;
 	/** Bind a member of the request.body object */
 	(name: string, type: any, optional?: boolean): (target: Object, propertyKey: string | symbol, parameterIndex: number) => void;
 } =
-function(nameOrType: string | any, type?: any, optional?: boolean) {
+function(nameOrType?: string | any, type?: any, optional?: boolean) {
 	if (typeof nameOrType === 'string') {
 		return addParamBinding(nameOrType, optional, 'body', type);
 	}
-	return addParamBinding(null, false, 'full-body', nameOrType);
+	return addParamBinding(null, false, 'full-body', nameOrType || Object);
 };
 
 export function queryString(name: string, optional?: boolean) { obsWarn('queryString', 'query'); return addParamBinding(name, optional, 'query', String); }

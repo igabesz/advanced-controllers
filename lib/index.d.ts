@@ -16,7 +16,7 @@ export declare function bodyNumber(name: string, optional?: boolean): (target: O
 export declare function bodyObject(name: string, optional?: boolean): (target: Object, propertyKey: string | symbol, parameterIndex: number) => void;
 export declare function bodyArray(name: string, optional?: boolean): (target: Object, propertyKey: string | symbol, parameterIndex: number) => void;
 export declare var body: {
-    (type: any): (target: Object, propertyKey: string | symbol, parameterIndex: number) => void;
+    (type?: any): (target: Object, propertyKey: string | symbol, parameterIndex: number) => void;
     (name: string, type: any, optional?: boolean): (target: Object, propertyKey: string | symbol, parameterIndex: number) => void;
 };
 export declare function queryString(name: string, optional?: boolean): (target: Object, propertyKey: string | symbol, parameterIndex: number) => void;
