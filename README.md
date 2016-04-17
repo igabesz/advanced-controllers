@@ -11,6 +11,18 @@ Features:
 See the tests for examples.
 
 
+## Not documented yet
+
+We DO HAVE these functions but it takes much time to make documentations, so I'll do it later. Create an issue or check the source if interested.
+
+* `body` annotation checking the whole `request.body` object
+* Adding custom validators
+* `WebError` object to send back custom error messages in custom formats
+* Usage with `async` action functions
+
+See the [Change log](CHANGELOG.md) for breaking changes.
+
+
 ## MVC Features
 
 Inspired on ASP.NET MVC it is possible to create Express based controllers and actions.
@@ -53,6 +65,7 @@ kittenCtrl.register(expressApp);
 * You have to actually *call* these functions. Good: `@get()`, bad: `@get`
 * Use `@del` instead of `@delete`
 * Don't forget to inherit from `BaseController` and call the `register()` function
+* You forget to initialize `body-parser` for your Express app (so body won't be parsed)
 
 
 ## Data Binding
@@ -67,14 +80,14 @@ class KittenController extends web.BaseController {
 	// GET /kittens/all?from=0[&cnt=25]
 	@web.get('/all')
 	getKittens(
-		@web.queryNumber('from') from: number,
-		@web.queryNumber('cnt', true) cnt: number
+		@web.query('from', Number) from: number,
+		@web.query('cnt', Number, true) cnt: number
 	) { }
 
 	// POST /kittens/create, body: { kitten: {} }
 	@web.post()
 	create(
-		@web.bodyObject('kitten') kitten: Kitten
+		@web.body('kitten', Object) kitten: Kitten
 	) {}
 
 	@web.del('delete')
@@ -84,17 +97,17 @@ class KittenController extends web.BaseController {
 
 **Features:**
 
-* Parsing from query: `queryString`, `queryNumber`, `queryObject`, `queryArray`
+* Parsing from query: `query` with these types: `String`, `Number`, `Object`, `Array`
   * Objects and arrays in query MUST be JSON-serialized
   * But seriously... arrays and objects in query?
-* Parsing from body: `bodyString`, `bodyNumber`, `bodyObject`, `bodyArray`
+* Parsing from body: `String`, `Number`, `Object`, `Array`
 * The bound value must be present and must be with the correct type unless you set the 2nd parameter to `true`
 * Currently `body` or `query` annotations are under consideration (returning full body / query)
 
 
 **Caveats:**
 
-* Don't forget about the parentheses... Good: `@bodyString('foo')`, bad: `@bodyString`
+* Don't forget about the parentheses... Good: `@body('foo', String)`, bad: `@body`
 * You MUST add the *variable name* when parsing body or query parameter. We cannot parse it for you
   * Well, ehm... actually we could (like the Angular team did) but currently we don't want to. It's kinda ugly. Maybe later
 
@@ -128,6 +141,9 @@ By default the response is closed automatically with a status code and sometimes
 * When the action throws an error:
   * If the error has a `statusCode` property ending with `statusCode`
   * Otherwise 500
+  * If the error has a `json` field then it will be sent as JSON
+  * If the error has a `text` field then it will be sent as plain text
+  * Default error parsing error sends back `{ "errors": [ { "message": "some-stuff" }]}`
 * When the action executes correctly, depending on the return value
   * On `undefined`: 200
   * On non-Promise value: 200 + value `JSON.strigify`-ed
