@@ -25,8 +25,8 @@ class BindingTestController extends web.BaseController {
 
 	@web.post('items-body')
 	createItem(
-		@web.bodyString('message', true) message: string,
-		@web.bodyNumber('value') value: number
+		@web.body('message', String, true) message: string,
+		@web.body('value', Number) value: number
 	) {
 		this.message = message;
 		this.items.push(value);
@@ -35,7 +35,7 @@ class BindingTestController extends web.BaseController {
 
 	@web.post('wrapped-body')
 	createItemFromObject(
-		@web.bodyObject('obj') obj: any
+		@web.body('obj', Object) obj: any
 	) {
 		this.message = obj.message;
 		this.items.push(obj.value);
@@ -44,7 +44,7 @@ class BindingTestController extends web.BaseController {
 
 	@web.get('items-query')
 	createItemFromQuery(
-		@web.queryArray('items') items: number[]
+		@web.query('items', Array) items: number[]
 	) {
 		for (let val of items)
 			this.items.push(val);
@@ -53,8 +53,8 @@ class BindingTestController extends web.BaseController {
 
 	@web.get('items-query2')
 	createItemFromQuery2(
-		@web.queryNumber('value') value: number,
-		@web.queryString('message', true) message: string
+		@web.query('value', Number) value: number,
+		@web.query('message', String, true) message: string
 	) {
 		this.message = message;
 		this.items.push(value);

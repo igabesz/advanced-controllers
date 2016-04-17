@@ -62,30 +62,30 @@ var BindingTestController = (function (_super) {
     ], BindingTestController.prototype, "getItems", null);
     __decorate([
         web.post('items-body'),
-        __param(0, web.bodyString('message', true)),
-        __param(1, web.bodyNumber('value')), 
+        __param(0, web.body('message', String, true)),
+        __param(1, web.body('value', Number)), 
         __metadata('design:type', Function), 
         __metadata('design:paramtypes', [String, Number]), 
         __metadata('design:returntype', void 0)
     ], BindingTestController.prototype, "createItem", null);
     __decorate([
         web.post('wrapped-body'),
-        __param(0, web.bodyObject('obj')), 
+        __param(0, web.body('obj', Object)), 
         __metadata('design:type', Function), 
         __metadata('design:paramtypes', [Object]), 
         __metadata('design:returntype', void 0)
     ], BindingTestController.prototype, "createItemFromObject", null);
     __decorate([
         web.get('items-query'),
-        __param(0, web.queryArray('items')), 
+        __param(0, web.query('items', Array)), 
         __metadata('design:type', Function), 
         __metadata('design:paramtypes', [Array]), 
         __metadata('design:returntype', void 0)
     ], BindingTestController.prototype, "createItemFromQuery", null);
     __decorate([
         web.get('items-query2'),
-        __param(0, web.queryNumber('value')),
-        __param(1, web.queryString('message', true)), 
+        __param(0, web.query('value', Number)),
+        __param(1, web.query('message', String, true)), 
         __metadata('design:type', Function), 
         __metadata('design:paramtypes', [Number, String]), 
         __metadata('design:returntype', void 0)

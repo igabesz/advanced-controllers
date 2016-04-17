@@ -42,14 +42,14 @@ var ReturnsTestController = (function (_super) {
     };
     __decorate([
         web.get('get-promise'),
-        __param(0, web.queryNumber('value')), 
+        __param(0, web.query('value', Number)), 
         __metadata('design:type', Function), 
         __metadata('design:paramtypes', [Number]), 
         __metadata('design:returntype', void 0)
     ], ReturnsTestController.prototype, "getPromise", null);
     __decorate([
         web.get('get-promise-rejected'),
-        __param(0, web.queryNumber('code')), 
+        __param(0, web.query('code', Number)), 
         __metadata('design:type', Function), 
         __metadata('design:paramtypes', [Number]), 
         __metadata('design:returntype', void 0)

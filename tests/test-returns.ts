@@ -14,7 +14,7 @@ var localBaseUrl = baseUrl + 'returns/';
 class ReturnsTestController extends web.BaseController {
 	@web.get('get-promise')
 	getPromise(
-		@web.queryNumber('value') value: number
+		@web.query('value', Number) value: number
 	) {
 		return new Promise((resolve, reject) => {
 			setTimeout(() => {
@@ -25,7 +25,7 @@ class ReturnsTestController extends web.BaseController {
 
 	@web.get('get-promise-rejected')
 	getPromiseRejected(
-		@web.queryNumber('code') code: number
+		@web.query('code', Number) code: number
 	) {
 		return new Promise((resolve, reject) => {
 			setTimeout(() => {

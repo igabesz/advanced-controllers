@@ -28,7 +28,7 @@ class SomeController extends web.BaseController {
 @web.controller('some2')
 class SomeController2 extends web.BaseController {
 	nohttpmethod(
-		@web.queryNumber('value') value: number
+		@web.query('value', Number) value: number
 	) {}
 }
 

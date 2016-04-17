@@ -60,7 +60,7 @@ var SomeController2 = (function (_super) {
     }
     SomeController2.prototype.nohttpmethod = function (value) { };
     __decorate([
-        __param(0, web.queryNumber('value')), 
+        __param(0, web.query('value', Number)), 
         __metadata('design:type', Function), 
         __metadata('design:paramtypes', [Number]), 
         __metadata('design:returntype', void 0)
