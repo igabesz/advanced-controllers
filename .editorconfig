@@ -11,3 +11,7 @@ insert_final_newline = true # doesn't work yet
 [*.html]
 indent_style = tab
 indent_size = 2
+
+[*.json]
+indent_style = space
+indent_size = 2
