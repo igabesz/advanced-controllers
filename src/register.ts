@@ -18,7 +18,13 @@ function handleError(err: Error | any, res: Res) {
 }
 
 
-function registerControllerFunction(thisBind: any, app: express.Express, actionFunc: HttpActionProperty, logger: Function) {
+function registerControllerFunction(
+	thisBind: any,
+	app: express.Express,
+	actionFunc: HttpActionProperty,
+	logger: Function,
+	namespace?: string
+) {
 	let action = actionFunc.action;
 	if (!action) { return false; }
 	if (!action.method || !action.url) {
@@ -27,6 +33,10 @@ function registerControllerFunction(thisBind: any, app: express.Express, actionF
 
 	let controllerName = thisBind.constructor.__controller.name;
 	let url = controllerName + action.url;
+	if (namespace) {
+		if (namespace[0] !== '/') namespace = '/' + namespace;
+		url = namespace + url;
+	}
 	logger && logger('debug', `Registering ${action.method} ${url} [${action.params.map(p => p.name)}]`);
 
 	// Applying middleware
@@ -122,7 +132,11 @@ function getAllFuncs(obj) {
 }
 
 export abstract class BaseController {
-	register(app: express.Express, logger: (level: 'debug' | 'error', message: string, meta: any) => void = console.log.bind(console)) {
+	register(
+		app: express.Express,
+		logger: (level: 'debug' | 'error', message: string, meta: any) => void = console.log.bind(console),
+		namespace?: string,
+	) {
 		let ctor = this.constructor as any;
 		if (!ctor || !ctor.__controller || !ctor.__controller.name) {
 			throw new Error('Must use @controller decoration on controller!');
@@ -131,7 +145,7 @@ export abstract class BaseController {
 		for (let name of funcNames) {
 			let actionFunc = ctor.prototype[name] as HttpActionProperty;
 			if (actionFunc.action) {
-				registerControllerFunction(this, app, actionFunc, logger);
+				registerControllerFunction(this, app, actionFunc, logger, namespace);
 			}
 		}
 	}
