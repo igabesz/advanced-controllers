@@ -6,6 +6,7 @@ Features:
 * Easy configuration through `@decorators`
 * Data binding for request data (query, body)
 * Return value handling (data, exception, Promise)
+* Authorization support
 * Written in TypeScript, compiled to ES5
 
 See the tests for examples.
@@ -66,6 +67,16 @@ kittenCtrl.register(expressApp);
 * Use `@del` instead of `@delete`
 * Don't forget to inherit from `BaseController` and call the `register()` function
 * You forget to initialize `body-parser` for your Express app (so body won't be parsed)
+
+### Registration details
+
+```
+kittenCtrl.register(
+	expressApp, // Express app
+	() => {},   // [OPTIONAL] Logger function for registration and runtime errors
+	'animals',  // [OPTIONAL] Namespace for ctrl, e.g. 'GET /animals/kitten/all'
+);
+```
 
 
 ## Data Binding
@@ -194,3 +205,58 @@ class MiddlewareTestController extends web.BaseController {
 **Caveats:**
 
 * A tricky one: if you specify the middleware function with Arrow Syntax (`() => {}`) then the `this` reference won't refer to the controller instance when the middleware is called. The reason is TS/ES6 to ES5 transpilation: the `this` reference changes in the process and I could not bind it.
+
+
+## Permissions
+
+This app does authorize but it needs the user to be authenticated. Please create an Express middleware providing the following interface.
+
+```
+export interface RequestWithUser extends Req {
+	user: {
+		hasPermission(permission: string): boolean | Promise<boolean>;
+	};
+}
+```
+
+You can use permissions like this:
+
+```
+@web.controller('perm')
+class PermissionController extends web.BaseController {
+	// GET /perm/test1-a
+	// Needs permission: 'perm:test1-a'
+	@web.permission()
+	@web.get('test1-a')
+	testOneA() { return { done: true }; }
+
+	// GET /perm/testOneB
+	// Needs permission: 'perm:TestOneB'
+	@web.permission()
+	@web.get()
+	testOneB() { return { done: true }; }
+
+	// POST /perm/test2
+	// Needs permission: 'perm:test-two'
+	@web.permission('perm:test-two')
+	@web.post('test2')
+	testTwo() { return { done: true }; }
+
+	// GET /perm/noPerm
+	// NO permission required
+	@web.get('noperm')
+	noPerm() { return { done: true }; }
+}
+```
+
+Notes
+
+* When the user is not authenticated (i.e. `req.user.hasPermission` does not exists) the response is: 401 `{ errors: [{ message: "Unauthenticated" }]}`.
+* When the user is authenticated but does not have the required permissions the response is: 403 `{ errors: [{ message: "Unauthorized" }]}`.
+
+See [HTTP Status Codes Wiki][https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#4xx_Client_Error].
+
+Caveats:
+
+* Register the middleware providing `req.user.hasPermission` *before* registering the controller.
+* This feature supports only permission-based authentication. If you have *roles* then you should map them somehow to permissions during authentication.
