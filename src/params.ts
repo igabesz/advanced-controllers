@@ -17,7 +17,7 @@ function addParam(prop: HttpActionProperty, name: string | symbol, index: number
 export function req() {
 	return (target: Object, propertyKey: string | symbol, parameterIndex: number) => {
 		let prop = <HttpActionProperty>target[propertyKey];
-		addParam(prop, null, parameterIndex, 'req', null, false);
+		addParam(prop, null, parameterIndex, 'req', 'req', false);
 	};
 }
 
@@ -25,7 +25,7 @@ export function req() {
 export function res() {
 	return (target: Object, propertyKey: string | symbol, parameterIndex: number) => {
 		let prop = <HttpActionProperty>target[propertyKey];
-		addParam(prop, null, parameterIndex, 'res', null, false);
+		addParam(prop, null, parameterIndex, 'res', 'res', false);
 	};
 }
 

@@ -18,6 +18,14 @@ class BindingTestController extends web.BaseController {
 		super();
 	}
 
+	@web.get()
+	reqres(
+		@web.req() req: web.Req,
+		@web.res() res: web.Res,
+	) {
+		res.end();
+	}
+
 	@web.get('/items')
 	getItems() {
 		return this.items;
@@ -74,6 +82,13 @@ describe('BindingTestController', () => {
 	before(() => {
 		mainController = new BindingTestController();
 		mainController.register(app, () => {});
+	});
+
+	it('should serve req and res', (done) => {
+		request(localBaseUrl + 'reqres', (err, res, body) => {
+			generalAssert(err, res);
+			done();
+		});
 	});
 
 	it('should return the empty array', (done) => {
