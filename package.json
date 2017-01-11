@@ -37,6 +37,7 @@
   },
   "scripts": {
     "build": "tsc -p src",
+    "build:test": "tsc -p tests",
     "test": "mocha tests/test"
   },
   "author": {
