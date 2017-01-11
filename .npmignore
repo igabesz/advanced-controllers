@@ -1,6 +1,7 @@
 *.js.map
 .atomignore
 .editorconfig
+.npmignore
 typings.json
 tslint.json
 src/

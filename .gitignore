@@ -3,3 +3,5 @@ lib/
 tests/*.js
 *.js.map
 *.log
+*.tgz
+*.log
