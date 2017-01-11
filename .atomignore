@@ -1,2 +1,2 @@
 *.js.map
-tests/*.d.ts
+tests/*.js

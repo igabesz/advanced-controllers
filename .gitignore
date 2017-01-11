@@ -1,4 +1,5 @@
 node_modules/
 lib/
+tests/*.js
 *.js.map
 *.log
