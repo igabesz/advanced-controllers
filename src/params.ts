@@ -37,9 +37,9 @@ function addParamBinding(name: string, optional: boolean, from: ParamFrom, type:
 }
 
 /** Bind the whole request.body object */
-export function body(type?: any): PropertyDecorator;
+export function body(type?: any): (target: Object, propertyKey: string | symbol, parameterIndex: number) => void;
 /** Bind a member of the request.body object */
-export function body(name: string, type: any, optional?: boolean): PropertyDecorator;
+export function body(name: string, type: any, optional?: boolean): (target: Object, propertyKey: string | symbol, parameterIndex: number) => void;
 /** Implementation */
 export function body(nameOrType?: string | any, type?: any, optional?: boolean) {
 	if (typeof nameOrType === 'string') {

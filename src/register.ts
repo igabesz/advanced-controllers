@@ -1,8 +1,9 @@
 import * as express from 'express';
 import * as _ from 'lodash';
-import { Req, Res, HttpActionProperty } from './types';
+import { Req, Res, HttpActionProperty, RequestWithUser, WebError } from './types';
 import { validators } from './validator';
 import { resolver } from './params';
+import { getPermName, permCheckGenerator, PermCheckResult } from './permission';
 
 
 function handleError(err: Error | any, res: Res) {
@@ -17,8 +18,8 @@ function handleError(err: Error | any, res: Res) {
 }
 
 
-function registerControllerFunction(thisBind: any, app: express.Express, actionFunc: Function, logger: Function) {
-	let action = (actionFunc as HttpActionProperty).action;
+function registerControllerFunction(thisBind: any, app: express.Express, actionFunc: HttpActionProperty, logger: Function) {
+	let action = actionFunc.action;
 	if (!action) { return false; }
 	if (!action.method || !action.url) {
 		throw new Error('Action has no method: ' + actionFunc);
@@ -44,11 +45,16 @@ function registerControllerFunction(thisBind: any, app: express.Express, actionF
 		if (validator.disableAutoClose) autoClose = false;
 	}
 
+	// Creating permission checker
+	let permCheck = permCheckGenerator(thisBind, actionFunc);
+
 	// Creating actionProcessor
-	let actionProcessor = generateHandler({ binders, argLength: action.params.length, logger, autoClose, thisBind, actionFunc });
+	let argLength = action.params.length;
+	let actionProcessor = generateHandler({ binders, argLength, logger, autoClose, thisBind, actionFunc, permCheck });
 
 	// Applying actionProcessor on app
-	app[_.toLower(action.method)](url, actionProcessor);
+	let method = _.toLower(action.method);
+	app[method](url, actionProcessor);
 }
 
 function generateHandler({
@@ -58,17 +64,26 @@ function generateHandler({
 	autoClose,
 	thisBind,
 	actionFunc,
+	permCheck,
 }: {
 	binders: ((params: any[], req: Req, res: Res) => any)[],
 	argLength: number,
 	logger?: any,
 	autoClose: boolean,
 	thisBind: any,
-	actionFunc: any,
+	actionFunc: HttpActionProperty,
+	permCheck: (req: RequestWithUser) => Promise<PermCheckResult>,
 }) {
-	return (req: Req, res: Res) => {
+	return async(req: RequestWithUser, res: Res) => {
 		let params = new Array(argLength);
 		try {
+			// Permission check
+			let permResult = await permCheck(req);
+			if (!permResult.success) {
+				let statusCode = permResult.reason === 'Unauthenticated' ? 401 : 403;
+				throw new WebError(permResult.reason, statusCode);
+			}
+
 			// Applying binders
 			for (let binder of binders) binder(params, req, res);
 
@@ -76,24 +91,18 @@ function generateHandler({
 			let result = actionFunc.apply(thisBind, params);
 			if (!autoClose) return;
 
-			// No result -> We're done
-			if (result === undefined) return res.sendStatus(200);
-			// Promise result -> Wait for it
-			else if (result instanceof Promise) {
-				result
-				.then(response => (result !== undefined) ? res.json(response) : res.sendStatus(200))
-				.catch(ex => {
-					(!ex.statusCode) && logger && logger('error', 'Something broke (Promise)', { ex, message: ex.message, stack: ex.stack });
-					handleError(ex, res);
-				});
-				return;
+			// Awaiting if promise
+			if (result instanceof Promise) {
+				result = await result;
 			}
-			// Anything else -> Send back as json
-			res.json(result);
+			// Sending back the results
+			if (result !== undefined) return res.json(result);
+			// No result -> We're done
+			res.sendStatus(200);
 		}
 		// Internal error
 		catch (ex) {
-			(!ex.statusCode) && logger && logger('error', 'Something broke (Exception)', { ex: ex, message: ex.message, stack: ex.stack });
+			(!ex.statusCode) && logger && logger('error', 'Something broke', { ex: ex, message: ex.message, stack: ex.stack });
 			handleError(ex, res);
 		}
 	};
@@ -120,10 +129,25 @@ export abstract class BaseController {
 		}
 		let funcNames = getAllFuncs(this);
 		for (let name of funcNames) {
-			let action = ctor.prototype[name];
-			if ((action as HttpActionProperty).action) {
-				registerControllerFunction(this, app, action, logger);
+			let actionFunc = ctor.prototype[name] as HttpActionProperty;
+			if (actionFunc.action) {
+				registerControllerFunction(this, app, actionFunc, logger);
 			}
 		}
+	}
+
+	getAllPermissions(): string[] {
+		let result: string[] = [];
+		let ctor = this.constructor as any;
+		let funcNames = getAllFuncs(this);
+		for (let name of funcNames) {
+			let actionFunc = ctor.prototype[name] as HttpActionProperty;
+			if (actionFunc.action) {
+				let permName = getPermName(this, actionFunc);
+				if (permName !== undefined)
+					result.push(permName);
+			}
+		}
+		return result;
 	}
 }

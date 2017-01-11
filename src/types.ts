@@ -32,10 +32,6 @@ export interface HttpActionProperty {
 	action: HttpAction;
 }
 
-export interface ParamterDecorator {
-	(target: Object, propertyKey: string | symbol, parameterIndex: number): any | void;
-}
-
 export class WebError extends Error {
 	static requestErrorTransformer = (error: WebError, message: string, statusCode: number) => {
 		error.json = { errors: [ {message} ]};
@@ -60,4 +56,10 @@ export interface Validator {
 	parse(value: string): any;
 	/** Optional: to indicate that this binding disables requrest autoclose */
 	disableAutoClose?: boolean;
+}
+
+export interface RequestWithUser extends Req {
+	user: {
+		hasPermission(permission: string): boolean | Promise<boolean>;
+	};
 }
