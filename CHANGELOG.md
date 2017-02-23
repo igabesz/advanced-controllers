@@ -1,3 +1,12 @@
+# 0.3.1 (2017-02-23)
+
+## FEATURES
+
+* `WebError` can be used to send back a `code` besides a message. `{ errors: [ { message: string, code?: number }] }`
+
+No breaking change, only extension.
+
+
 # 0.3.0 (2017-01-11)
 
 ## FEATURES

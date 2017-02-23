@@ -18,7 +18,6 @@ We DO HAVE these functions but it takes much time to make documentations, so I'l
 
 * `body` annotation checking the whole `request.body` object
 * Adding custom validators
-* `WebError` object to send back custom error messages in custom formats
 * Usage with `async` action functions
 
 See the [Change log](CHANGELOG.md) for breaking changes.
@@ -165,6 +164,19 @@ By default the response is closed automatically with a status code and sometimes
 **Caveats:**
 
 * If the action asked for `res` then there is no auto-close. In this case we don't know whether the response is closed -- or will be closed -- in the action.
+
+
+## `WebError` object
+
+This object extends `Error` and can be used to conveniently send back custom HTTP codes, error messages and codes. Feel free to throw it in actions, the framework will handle it.
+
+* `new WebError(message: string)`, sending HTTP status code 500 by default
+* `new WebError(message: string, statusCode: number)`
+* `new WebError(message: string, settings: { statusCode?: number, errorCode?: number})`, the `errorCode` will be in the result JSON as `errors[0].code`
+
+The result will be something like this: `{ "errors": [ { "message": "some-stuff", "code": 1 }]}`
+
+Customization by overwriting `WebError.requestErrorTransformer`.
 
 
 ## Middlewares
