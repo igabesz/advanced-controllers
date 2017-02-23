@@ -33,17 +33,33 @@ export interface HttpActionProperty {
 }
 
 export class WebError extends Error {
-	static requestErrorTransformer = (error: WebError, message: string, statusCode: number) => {
-		error.json = { errors: [ {message} ]};
+	static requestErrorTransformer = (error: WebError, message: string, statusCode: number, errorCode?: number) => {
+		error.json = { errors: [ { message, code: errorCode } ]};
 	}
 	statusCode: number;
+	code: number;
 	text: string;
 	json: Object | Array<any>;
 
-	constructor(message: string, statusCode: number = 500) {
+	constructor(message: string);
+	constructor(message: string, statusCode: number);
+	constructor(message: string, settings: {
+		/** HTTP status code to return */
+		statusCode?: number;
+		/** Error code to return within the body */
+		errorCode?: number;
+	});
+	constructor(message: string, param2?: number | { statusCode?: number; errorCode?: number }) {
 		super(message);
-		this.statusCode = statusCode;
-		WebError.requestErrorTransformer(this, message, statusCode);
+		this.statusCode = 500;
+		if (typeof param2 === 'number') {
+			this.statusCode = param2;
+		}
+		if (typeof param2 === 'object') {
+			param2.statusCode && (this.statusCode = param2.statusCode);
+			param2.errorCode && (this.code = param2.errorCode);
+		}
+		WebError.requestErrorTransformer(this, message, this.statusCode, this.code);
 	}
 }
 

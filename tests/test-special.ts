@@ -7,7 +7,6 @@ import { app, baseUrl } from './test-base';
 
 
 declare var Promise;
-var localBaseUrl = baseUrl + 'returns/';
 
 
 class MissingDecoratorController extends web.BaseController {
