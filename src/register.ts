@@ -144,6 +144,7 @@ export abstract class BaseController {
 		let funcNames = getAllFuncs(this);
 		for (let name of funcNames) {
 			let actionFunc = ctor.prototype[name] as HttpActionProperty;
+			if (!actionFunc) continue;
 			if (actionFunc.action) {
 				registerControllerFunction(this, app, actionFunc, logger, namespace);
 			}
@@ -156,6 +157,7 @@ export abstract class BaseController {
 		let funcNames = getAllFuncs(this);
 		for (let name of funcNames) {
 			let actionFunc = ctor.prototype[name] as HttpActionProperty;
+			if (!actionFunc) continue;
 			if (actionFunc.action) {
 				let permName = getPermName(this, actionFunc);
 				if (permName !== undefined)
