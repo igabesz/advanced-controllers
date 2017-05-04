@@ -1,3 +1,10 @@
+# 0.3.2 (2017-05-04)
+
+## FIXES
+
+* Fix enables using controller classes having a member variable with `function` type
+
+
 # 0.3.1 (2017-02-23)
 
 ## FEATURES
