@@ -1,3 +1,10 @@
+# 0.4.0 (2017-05-05)
+
+# FEATURES
+
+- Permission support on classes
+
+
 # 0.3.2 (2017-05-04)
 
 ## FIXES

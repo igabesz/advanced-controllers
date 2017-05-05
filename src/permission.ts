@@ -1,16 +1,32 @@
 import { HttpActionProperty, Req, Res, RequestWithUser, WebError } from './types';
 
 
+function permissionOnAction(permName: string, target: any, funcName: string) {
+	let prop = <HttpActionProperty>target[funcName];
+	prop.action = prop.action || {
+		url: null,
+		method: null,
+		params: [],
+		middlewares: [],
+	};
+	prop.action.permission = permName || '';
+}
+
+function permissionOnClass(permName: string, target: any) {
+	// NOTE: At this point the actions already exist and are decorated
+	for (let key in target.prototype) {
+		let prop = target.prototype[key];
+		if (typeof prop === 'function' && prop.action && prop.action.url) {
+			prop.action.permission = prop.action.permission || permName;
+		}
+	}
+}
+
 export function permission(name?: string) {
-	return (target, funcName) => {
-		let prop = <HttpActionProperty>target[funcName];
-		prop.action = prop.action || {
-			url: null,
-			method: null,
-			params: [],
-			middlewares: [],
-		};
-		prop.action.permission = name || '';
+	return (target, funcName?) => {
+		// Applied on an action or a class?
+		if (funcName) permissionOnAction(name, target, funcName);
+		else permissionOnClass(name, target);
 	};
 }
 

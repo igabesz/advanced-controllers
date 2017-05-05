@@ -21,6 +21,7 @@ const authenticator = new class {
 	}
 }();
 
+
 @web.controller('perm')
 class PermissionController extends web.BaseController {
 	@web.permission()
@@ -39,7 +40,21 @@ class PermissionController extends web.BaseController {
 	noPerm() { return { done: true }; }
 }
 
+
+@web.controller('perm-class')
+@web.permission('class-perm')
+class PermissionController2 extends web.BaseController {
+	@web.permission('func-perm')
+	@web.get('test1')
+	testOne() { return { done: true }; }
+
+	@web.get('test2')
+	testTwo() { return { done: true }; }
+}
+
+
 let ctrl: PermissionController;
+let ctrl2: PermissionController2;
 let permissionsShouldBe = [
 	'perm:test1-a',
 	'perm:testOneB',
@@ -50,7 +65,9 @@ describe('Permission', () => {
 	it('should be created and registered', () => {
 		app.use(authenticator.mw);
 		ctrl = new PermissionController();
+		ctrl2 = new PermissionController2();
 		ctrl.register(app, () => {});
+		ctrl2.register(app, () => {});
 	});
 
 	it('should have good permissions', () => {
@@ -105,5 +122,12 @@ describe('Permission', () => {
 			assert.equal(data.errors[0].message, 'Unauthorized');
 			done();
 		});
+	});
+
+	it('should handle class-level permissions', () => {
+		let p = ctrl2.getAllPermissions();
+		assert.equal(p.length, 2);
+		assert.equal(p[0], 'func-perm');
+		assert.equal(p[1], 'class-perm');
 	});
 });

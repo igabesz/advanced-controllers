@@ -263,6 +263,7 @@ class PermissionController extends web.BaseController {
 
 Notes
 
+* The `permission` decorator can be used on classes as well. It won't override the action-level permissions.
 * When the user is not authenticated (i.e. `req.user.hasPermission` does not exists) the response is: 401 `{ errors: [{ message: "Unauthenticated" }]}`.
 * When the user is authenticated but does not have the required permissions the response is: 403 `{ errors: [{ message: "Unauthorized" }]}`.
 
