@@ -1,6 +1,6 @@
 import * as express from 'express';
 import * as _ from 'lodash';
-import { Req, Res, HttpActionProperty, RequestWithUser, WebError } from './types';
+import { Req, Res, HttpActionProperty, RequestWithUser, WebError, getAllFuncs } from './types';
 import { validators } from './validator';
 import { resolver } from './params';
 import { getPermName, permCheckGenerator, PermCheckResult } from './permission';
@@ -116,19 +116,6 @@ function generateHandler({
 			handleError(ex, res);
 		}
 	};
-}
-
-// https://stackoverflow.com/questions/31054910/get-functions-methods-of-a-class
-function getAllFuncs(obj) {
-	var props = [];
-	let protoObj = obj;
-	while (protoObj) {
-		props = props.concat(Object.getOwnPropertyNames(protoObj));
-		protoObj = Object.getPrototypeOf(protoObj);
-	}
-	return props.sort().filter(function(e, i, arr) {
-		if (e !== arr[i+1] && typeof obj[e] === 'function') return true;
-	});
 }
 
 export abstract class BaseController {

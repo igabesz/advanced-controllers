@@ -1,4 +1,4 @@
-import { HttpActionProperty, Req, Res, RequestWithUser, WebError } from './types';
+import { HttpActionProperty, Req, Res, RequestWithUser, WebError, getAllFuncs } from './types';
 
 
 function permissionOnAction(permName: string, target: any, funcName: string) {
@@ -16,9 +16,10 @@ function permissionOnClass(permName: string, target: any) {
 	permName = permName || target.__controller.name;
 	if (!permName) throw new Error(`Cannot add empty permission on class`);
 	// NOTE: At this point the actions already exist and are decorated
-	for (let key in target.prototype) {
-		let prop = target.prototype[key];
-		if (typeof prop === 'function' && prop.action && prop.action.url) {
+	let props = getAllFuncs(target.prototype);
+	for (let propName of props) {
+		let prop = target.prototype[propName];
+		if (prop && prop.action && prop.action.url) {
 			prop.action.permission = prop.action.permission || permName;
 		}
 	}

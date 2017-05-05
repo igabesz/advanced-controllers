@@ -79,3 +79,16 @@ export interface RequestWithUser extends Req {
 		hasPermission(permission: string): boolean | Promise<boolean>;
 	};
 }
+
+// https://stackoverflow.com/questions/31054910/get-functions-methods-of-a-class
+export function getAllFuncs(obj) {
+	var props = [];
+	let protoObj = obj;
+	while (protoObj) {
+		props = props.concat(Object.getOwnPropertyNames(protoObj));
+		protoObj = Object.getPrototypeOf(protoObj);
+	}
+	return props.sort().filter(function(e, i, arr) {
+		if (e !== arr[i+1] && typeof obj[e] === 'function') return true;
+	});
+}
