@@ -13,6 +13,8 @@ function permissionOnAction(permName: string, target: any, funcName: string) {
 }
 
 function permissionOnClass(permName: string, target: any) {
+	permName = permName || target.__controller.name;
+	if (!permName) throw new Error(`Cannot add empty permission on class`);
 	// NOTE: At this point the actions already exist and are decorated
 	for (let key in target.prototype) {
 		let prop = target.prototype[key];
