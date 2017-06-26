@@ -1,3 +1,4 @@
+require('./test-static');
 require('./test-mw');
 require('./test-methods');
 require('./test-bindings');

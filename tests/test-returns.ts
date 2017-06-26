@@ -11,7 +11,7 @@ var localBaseUrl = baseUrl + 'returns/';
 
 
 @web.controller('returns')
-class ReturnsTestController extends web.BaseController {
+class ReturnsTestController extends web.AdvancedController {
 	@web.get('get-promise')
 	getPromise(
 		@web.query('value', Number) value: number

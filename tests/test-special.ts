@@ -9,13 +9,13 @@ import { app, baseUrl } from './test-base';
 declare var Promise;
 
 
-class MissingDecoratorController extends web.BaseController {
+class MissingDecoratorController extends web.AdvancedController {
 	@web.get()
 	anything() {}
 }
 
 @web.controller('some')
-class SomeController extends web.BaseController {
+class SomeController extends web.AdvancedController {
 	mwCalled = false;
 
 	@web.middleware(function(req, res, next) { this.mwCalled = true; next(); })
@@ -23,14 +23,14 @@ class SomeController extends web.BaseController {
 }
 
 @web.controller('some2')
-class SomeController2 extends web.BaseController {
+class SomeController2 extends web.AdvancedController {
 	nohttpmethod(
 		@web.query('value', Number) value: number
 	) {}
 }
 
 @web.controller('some3')
-class SomeController3 extends web.BaseController {
+class SomeController3 extends web.AdvancedController {
 	dontRegisterMe = () => {};
 
 	@web.get('2')
@@ -63,8 +63,8 @@ describe('Various Error Checks', () => {
 	it('should not throw error on member variables with function type', () => {
 		let ctrl = new SomeController3();
 		let regCnt = 0;
-		ctrl.register(app, () => regCnt++);
-		let permissions = ctrl.getAllPermissions();
+		ctrl.register(app, { debugLogger: () => regCnt++ });
+		let permissions = ctrl.getPermissions();
 		assert.equal(regCnt, 1);
 	});
 });

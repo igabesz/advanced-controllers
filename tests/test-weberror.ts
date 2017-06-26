@@ -10,7 +10,7 @@ var localBaseUrl = baseUrl + 'error/';
 
 
 @web.controller('error')
-class ErrorController extends web.BaseController {
+class ErrorController extends web.AdvancedController {
 
 	@web.get()
 	test1() {
@@ -31,9 +31,10 @@ class ErrorController extends web.BaseController {
 
 
 describe('WebError checks', () => {
-	const ctrl = new ErrorController();
+	let ctrl: ErrorController;
 
 	before(() => {
+		ctrl = new ErrorController();
 		ctrl.register(app, () => {});
 	});
 

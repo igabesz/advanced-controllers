@@ -11,7 +11,7 @@ var localBaseUrl = baseUrl + 'middleware/';
 
 
 @web.controller('middleware')
-class MiddlewareTestController extends web.BaseController {
+class MiddlewareTestController extends web.AdvancedController {
 	middlewareCalled = false;
 
 	@web.get('no-middleware')

@@ -46,7 +46,7 @@ export function body(nameOrType?: string | any, type?: any, optional?: boolean) 
 		return addParamBinding(nameOrType, optional, 'body', type);
 	}
 	return addParamBinding(null, false, 'full-body', nameOrType || Object);
-};
+}
 
 /** Bind an element from query */
 export function query(name: string, type: any, optional?: boolean) { return addParamBinding(name, optional, 'query', type); }

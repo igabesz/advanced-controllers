@@ -22,7 +22,8 @@ function registerControllerFunction(
 	thisBind: any,
 	app: express.Express,
 	actionFunc: HttpActionProperty,
-	logger: Function,
+	debugLogger?: Function,
+	errorLogger?: Function,
 	namespace?: string
 ) {
 	let action = actionFunc.action;
@@ -37,11 +38,11 @@ function registerControllerFunction(
 		if (namespace[0] !== '/') namespace = '/' + namespace;
 		url = namespace + url;
 	}
-	logger && logger('debug', `Registering ${action.method} ${url} [${action.params.map(p => p.name)}]`);
+	debugLogger && debugLogger(`Registering ${action.method} ${url} [${action.params.map(p => p.name)}]`);
 
 	// Applying middleware
 	for (let mwFunc of action.middlewares) {
-		logger && logger('debug', `Registering ${action.method} ${url} *MW*`);
+		debugLogger && debugLogger(`Registering ${action.method} ${url} *MW*`);
 		app.use(url, mwFunc.bind(thisBind));
 	}
 
@@ -60,7 +61,7 @@ function registerControllerFunction(
 
 	// Creating actionProcessor
 	let argLength = action.params.length;
-	let actionProcessor = generateHandler({ binders, argLength, logger, autoClose, thisBind, actionFunc, permCheck });
+	let actionProcessor = generateHandler({ binders, argLength, errorLogger, autoClose, thisBind, actionFunc, permCheck });
 
 	// Applying actionProcessor on app
 	let method = _.toLower(action.method);
@@ -70,7 +71,7 @@ function registerControllerFunction(
 function generateHandler({
 	binders,
 	argLength,
-	logger,
+	errorLogger,
 	autoClose,
 	thisBind,
 	actionFunc,
@@ -78,7 +79,7 @@ function generateHandler({
 }: {
 	binders: ((params: any[], req: Req, res: Res) => any)[],
 	argLength: number,
-	logger?: any,
+	errorLogger?: Function,
 	autoClose: boolean,
 	thisBind: any,
 	actionFunc: HttpActionProperty,
@@ -112,18 +113,46 @@ function generateHandler({
 		}
 		// Internal error
 		catch (ex) {
-			(!ex.statusCode) && logger && logger('error', 'Something broke', { ex: ex, message: ex.message, stack: ex.stack });
+			(!ex.statusCode) && errorLogger && errorLogger('error', 'Something broke', { ex: ex, message: ex.message, stack: ex.stack });
 			handleError(ex, res);
 		}
 	};
 }
 
-export abstract class BaseController {
-	register(
-		app: express.Express,
-		logger: (level: 'debug' | 'error', message: string, meta: any) => void = console.log.bind(console),
-		namespace?: string,
-	) {
+export interface AdvancedControllerSettings {
+	namespace?: string;
+	debugLogger?: (message: string, meta?: any) => void;
+	errorLogger?: (message: string, meta?: any) => void;
+}
+
+export abstract class AdvancedController {
+	private static controllers: AdvancedController[] = [];
+
+	static registerAll(app: express.Express, settings?: AdvancedControllerSettings) {
+		for (let ctrl of AdvancedController.controllers) {
+			ctrl.register(app, settings);
+		}
+	}
+
+	static getAllPermissions(): string[] {
+		let results: string[] = [];
+		for (let ctrl of AdvancedController.controllers) {
+			for (let perm of ctrl.getPermissions()) {
+				if (results.indexOf(perm) === -1) {
+					results.push(perm);
+				}
+			}
+		}
+		return results;
+	}
+
+	constructor() {
+		if (AdvancedController.controllers.indexOf(this) === -1) {
+			AdvancedController.controllers.push(this);
+		}
+	}
+
+	register(app: express.Express, settings?: AdvancedControllerSettings) {
 		let ctor = this.constructor as any;
 		if (!ctor || !ctor.__controller || !ctor.__controller.name) {
 			throw new Error('Must use @controller decoration on controller!');
@@ -133,12 +162,15 @@ export abstract class BaseController {
 			let actionFunc = ctor.prototype[name] as HttpActionProperty;
 			if (!actionFunc) continue;
 			if (actionFunc.action) {
-				registerControllerFunction(this, app, actionFunc, logger, namespace);
+				let debugLogger = settings ? settings.debugLogger : undefined;
+				let errorLogger = settings ? settings.errorLogger : undefined;
+				let namespace = settings ? settings.namespace : undefined;
+				registerControllerFunction(this, app, actionFunc, debugLogger, errorLogger, namespace);
 			}
 		}
 	}
 
-	getAllPermissions(): string[] {
+	getPermissions(): string[] {
 		let result: string[] = [];
 		let ctor = this.constructor as any;
 		let funcNames = getAllFuncs(this);

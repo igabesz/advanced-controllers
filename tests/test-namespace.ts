@@ -11,7 +11,7 @@ const myNamespace = 'my-namespace';
 const localBaseUrl = baseUrl + myNamespace + '/somectrl';
 
 @web.controller('somectrl')
-class NamespaceController extends web.BaseController {
+class NamespaceController extends web.AdvancedController {
 	@web.get()
 	test() { return { done: true }; }
 }
@@ -21,7 +21,7 @@ let ctrl: NamespaceController;
 describe('Namespace', () => {
 	it('should be created and registered', () => {
 		ctrl = new NamespaceController();
-		ctrl.register(app, () => {}, myNamespace);
+		ctrl.register(app, { namespace: myNamespace });
 	});
 
 	it('should work with namespace', (done) => {

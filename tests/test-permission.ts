@@ -23,7 +23,7 @@ const authenticator = new class {
 
 
 @web.controller('perm')
-class PermissionController extends web.BaseController {
+class PermissionController extends web.AdvancedController {
 	@web.permission()
 	@web.get('test1-a')
 	testOneA() { return { done: true }; }
@@ -43,7 +43,7 @@ class PermissionController extends web.BaseController {
 
 @web.controller('perm-class')
 @web.permission('class-perm')
-class PermissionController2 extends web.BaseController {
+class PermissionController2 extends web.AdvancedController {
 	@web.permission('func-perm')
 	@web.get('test1')
 	testOne() { return { done: true }; }
@@ -66,12 +66,12 @@ describe('Permission', () => {
 		app.use(authenticator.mw);
 		ctrl = new PermissionController();
 		ctrl2 = new PermissionController2();
-		ctrl.register(app, () => {});
-		ctrl2.register(app, () => {});
+		ctrl.register(app);
+		ctrl2.register(app);
 	});
 
 	it('should have good permissions', () => {
-		let permissions = ctrl.getAllPermissions();
+		let permissions = ctrl.getPermissions();
 		assert.equal(permissions.length, permissionsShouldBe.length);
 		for (let perm of permissionsShouldBe) {
 			assert.notEqual(permissions.indexOf(perm), -1, `Missing permission: ${perm}`);
@@ -125,7 +125,7 @@ describe('Permission', () => {
 	});
 
 	it('should handle class-level permissions', () => {
-		let p = ctrl2.getAllPermissions();
+		let p = ctrl2.getPermissions();
 		assert.equal(p.length, 2);
 		assert.equal(p[0], 'func-perm');
 		assert.equal(p[1], 'class-perm');

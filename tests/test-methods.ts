@@ -11,7 +11,7 @@ var localBaseUrl = baseUrl + 'methods/';
 
 
 @web.controller('methods')
-class MethodTestController extends web.BaseController {
+class MethodTestController extends web.AdvancedController {
 	@web.get()
 	get() { return 'get'; }
 

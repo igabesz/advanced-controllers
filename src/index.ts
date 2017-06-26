@@ -9,4 +9,4 @@ export * from './middleware';
 export { permission } from './permission';
 export * from './validator';
 export { req, res, body, query } from './params';
-export { BaseController } from './register';
+export { AdvancedController, AdvancedControllerSettings } from './register';

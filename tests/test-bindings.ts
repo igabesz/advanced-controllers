@@ -10,7 +10,7 @@ var localBaseUrl = baseUrl + 'binding/';
 
 
 @web.controller('binding')
-class BindingTestController extends web.BaseController {
+class BindingTestController extends web.AdvancedController {
 	items = [];
 	message: string = null;
 
