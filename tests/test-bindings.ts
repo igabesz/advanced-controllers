@@ -2,67 +2,63 @@ import * as _ from 'lodash';
 import * as assert from 'assert';
 import * as request from 'request';
 
-import * as web from '../lib/index';
+import { Controller, Get, Post, Req, Res, Request, Response, Body, Query, AdvancedController } from '../lib/index';
 import { app, baseUrl } from './test-base';
 
 
 var localBaseUrl = baseUrl + 'binding/';
 
 
-@web.controller('binding')
-class BindingTestController extends web.AdvancedController {
+@Controller('binding')
+class BindingTestController extends AdvancedController {
 	items: number[] = [];
 	message: string;
 
-	constructor() {
-		super();
-	}
-
-	@web.get()
+	@Get()
 	reqres(
-		@web.req() req: web.Req,
-		@web.res() res: web.Res,
+		@Req() req: Request,
+		@Res() res: Response,
 	) {
 		res.end();
 	}
 
-	@web.get('/items')
+	@Get('/items')
 	getItems() {
 		return this.items;
 	}
 
-	@web.post('items-body')
+	@Post('items-body')
 	createItem(
-		@web.body('message', String, true) message: string,
-		@web.body('value', Number) value: number
+		@Body('message', String, true) message: string,
+		@Body('value', Number) value: number
 	) {
 		this.message = message;
 		this.items.push(value);
 		return { last: _.last(this.items) };
 	}
 
-	@web.post('wrapped-body')
+	@Post('wrapped-body')
 	createItemFromObject(
-		@web.body('obj', Object) obj: any
+		@Body('obj', Object) obj: any
 	) {
 		this.message = obj.message;
 		this.items.push(obj.value);
 		return { last: _.last(this.items) };
 	}
 
-	@web.get('items-query')
+	@Get('items-query')
 	createItemFromQuery(
-		@web.query('items', Array) items: number[]
+		@Query('items', Array) items: number[]
 	) {
 		for (let val of items)
 			this.items.push(val);
 		return { last: _.last(this.items) };
 	}
 
-	@web.get('items-query2')
+	@Get('items-query2')
 	createItemFromQuery2(
-		@web.query('value', Number) value: number,
-		@web.query('message', String, true) message: string
+		@Query('value', Number) value: number,
+		@Query('message', String, true) message: string
 	) {
 		this.message = message;
 		this.items.push(value);

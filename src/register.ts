@@ -1,12 +1,12 @@
 import * as express from 'express';
 import * as _ from 'lodash';
-import { Req, Res, HttpActionProperty, RequestWithUser, WebError, getAllFuncs } from './types';
+import { Request, Response, HttpActionProperty, RequestWithUser, WebError, getAllFuncs } from './types';
 import { validators } from './validator';
 import { resolver } from './params';
 import { getPermName, permCheckGenerator, PermCheckResult, setRoleMap } from './permission';
 
 
-function handleError(err: Error | any, res: Res) {
+function handleError(err: Error | any, res: Response) {
 	err.statusCode = err.statusCode || 500;
 	if (err.json) {
 		return res.status(err.statusCode).json(err.json);
@@ -47,7 +47,7 @@ function registerControllerFunction(
 	}
 
 	// Creating parser functions
-	let binders: ((params: any[], req: Req, res: Res) => any)[] = [];
+	let binders: ((params: any[], req: Request, res: Response) => any)[] = [];
 	let autoClose = true;
 	for (let bind of action.params) {
 		let validator = validators.filter((item) => item.type === bind.type)[0];
@@ -77,7 +77,7 @@ function generateHandler({
 	actionFunc,
 	permCheck,
 }: {
-	binders: ((params: any[], req: Req, res: Res) => any)[],
+	binders: ((params: any[], req: Request, res: Response) => any)[],
 	argLength: number,
 	errorLogger?: Function,
 	autoClose: boolean,
@@ -85,7 +85,7 @@ function generateHandler({
 	actionFunc: HttpActionProperty,
 	permCheck: (req: RequestWithUser) => Promise<PermCheckResult>,
 }) {
-	return async(req: RequestWithUser, res: Res) => {
+	return async(req: RequestWithUser, res: Response) => {
 		let params = new Array(argLength);
 		try {
 			// Permission check

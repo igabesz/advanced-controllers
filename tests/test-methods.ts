@@ -3,25 +3,25 @@ import * as mocha from 'mocha';
 import * as assert from 'assert';
 import * as request from 'request';
 
-import * as web from '../lib/index';
+import { Controller, Get, Post, Put, Del, AdvancedController } from '../lib/index';
 import { app, baseUrl } from './test-base';
 
 
 var localBaseUrl = baseUrl + 'methods/';
 
 
-@web.controller('methods')
-class MethodTestController extends web.AdvancedController {
-	@web.get()
+@Controller('methods')
+class MethodTestController extends AdvancedController {
+	@Get()
 	get() { return 'get'; }
 
-	@web.post()
+	@Post()
 	post() { return 'post'; }
 
-	@web.put()
+	@Put()
 	put() { return 'put'; }
 
-	@web.del('delete')
+	@Del('delete')
 	delete() { return 'delete'; }
 }
 

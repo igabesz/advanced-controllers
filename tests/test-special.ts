@@ -7,30 +7,30 @@ import { app, baseUrl } from './test-base';
 
 
 class MissingDecoratorController extends web.AdvancedController {
-	@web.get()
+	@web.Get()
 	anything() {}
 }
 
-@web.controller('some')
+@web.Controller('some')
 class SomeController extends web.AdvancedController {
 	mwCalled = false;
 
-	@web.middleware(function(this: SomeController, req, res, next) { this.mwCalled = true; next(); })
+	@web.Middleware(function(this: SomeController, req, res, next) { this.mwCalled = true; next(); })
 	nohttpmethod() {}
 }
 
-@web.controller('some2')
+@web.Controller('some2')
 class SomeController2 extends web.AdvancedController {
 	nohttpmethod(
-		@web.query('value', Number) value: number
+		@web.Query('value', Number) value: number
 	) {}
 }
 
-@web.controller('some3')
+@web.Controller('some3')
 class SomeController3 extends web.AdvancedController {
 	dontRegisterMe = () => {};
 
-	@web.get('2')
+	@web.Get('2')
 	registerMe() {}
 }
 

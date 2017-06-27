@@ -1,12 +1,6 @@
 import * as express from 'express';
-import {
-	Request as Req,
-	Response as Res,
-} from 'express';
-export {
-	Request as Req,
-	Response as Res,
-} from 'express';
+import { Request, Response } from 'express';
+export { Request, Response } from 'express';
 
 
 export type ParamFrom = 'req' | 'res' | 'query' | 'body' | 'full-body';
@@ -24,11 +18,11 @@ export interface HttpAction {
 	url: string;
 	params: PropBinding[];
 	permission?: string;
-	middlewares: ((req: Req, res: Res, next: Function) => void)[];
+	middlewares: ((req: Request, res: Response, next: Function) => void)[];
 }
 
 export interface HttpActionProperty {
-	(req: Req, res: Res): any;
+	(req: Request, res: Response): any;
 	action: HttpAction;
 }
 
@@ -74,7 +68,7 @@ export interface Validator {
 	disableAutoClose?: boolean;
 }
 
-export interface RequestWithUser extends Req {
+export interface RequestWithUser extends Request {
 	user: {
 		hasPermission?(permission: string): boolean | Promise<boolean>;
 		roles?: string[];

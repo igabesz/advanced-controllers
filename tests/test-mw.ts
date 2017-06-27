@@ -10,34 +10,34 @@ import { app, baseUrl } from './test-base';
 var localBaseUrl = baseUrl + 'middleware/';
 
 
-@web.controller('middleware')
+@web.Controller('middleware')
 class MiddlewareTestController extends web.AdvancedController {
 	middlewareCalled = false;
 
-	@web.get('no-middleware')
+	@web.Get('no-middleware')
 	noMiddleware() {
 		return this.middlewareCalled;
 	}
 
-	middleware(req: web.Req, res: web.Res, next: Function) {
+	middleware(req: web.Request, res: web.Response, next: Function) {
 		this.middlewareCalled = true;
 		next();
 	}
 
-	@web.get('implicit-middleware')
-	@web.middleware('middleware')
+	@web.Get('implicit-middleware')
+	@web.Middleware('middleware')
 	implicitMiddleware() {
 		return this.middlewareCalled;
 	}
 
-	@web.get('explicit-middleware')
-	@web.middleware(function(this: MiddlewareTestController, eq, res, next) { this.middlewareCalled = true; next(); })
+	@web.Get('explicit-middleware')
+	@web.Middleware(function(this: MiddlewareTestController, eq, res, next) { this.middlewareCalled = true; next(); })
 	explicitMiddleware() {
 		return this.middlewareCalled;
 	}
 
-	// @web.get('explicit-array-function-middleware')
-	// @web.middleware((req, res, next) => { (this).middlewareCalled = true; next(); })
+	// @web.Get('explicit-array-function-middleware')
+	// @web.Middleware((req, res, next) => { (this).middlewareCalled = true; next(); })
 	// explicitArrayFunctionMiddleware() {
 	// 	return this.middlewareCalled;
 	// }

@@ -22,33 +22,33 @@ const authenticator = new class {
 }();
 
 
-@web.controller('perm')
+@web.Controller('perm')
 class PermissionController extends web.AdvancedController {
-	@web.permission()
-	@web.get('test1-a')
+	@web.Permission()
+	@web.Get('test1-a')
 	testOneA() { return { done: true }; }
 
-	@web.permission()
-	@web.get()
+	@web.Permission()
+	@web.Get()
 	testOneB() { return { done: true }; }
 
-	@web.permission('perm.test-two')
-	@web.post('test2')
+	@web.Permission('perm.test-two')
+	@web.Post('test2')
 	testTwo() { return { done: true }; }
 
-	@web.get('noperm')
+	@web.Get('noperm')
 	noPerm() { return { done: true }; }
 }
 
 
-@web.controller('perm-class')
-@web.permission('class-perm')
+@web.Controller('perm-class')
+@web.Permission('class-perm')
 class PermissionController2 extends web.AdvancedController {
-	@web.permission('func-perm')
-	@web.get('test1')
+	@web.Permission('func-perm')
+	@web.Get('test1')
 	testOne() { return { done: true }; }
 
-	@web.get('test2')
+	@web.Get('test2')
 	testTwo() { return { done: true }; }
 }
 

@@ -8,14 +8,14 @@ import { app, baseUrl } from './test-base';
 const localBaseUrl = baseUrl + 'static-round2/';
 
 
-@web.controller('static-round2')
+@web.Controller('static-round2')
 class StaticTestController extends web.AdvancedController {
-	@web.permission('static-11')
-	@web.get('get1')
+	@web.Permission('static-11')
+	@web.Get('get1')
 	get() { return 'static-11'; }
 
-	@web.permission('static-12')
-	@web.get('get2')
+	@web.Permission('static-12')
+	@web.Get('get2')
 	get2() { return 'static-12'; }
 }
 

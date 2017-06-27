@@ -1,6 +1,6 @@
 import { HttpActionProperty, ParamFrom, PropBinding, Validator, WebError } from './types';
-import { Request as Req, Response as Res } from 'express';
-export { Request as Req, Response as Res } from 'express';
+import { Request, Response } from 'express';
+export { Request, Response } from 'express';
 
 
 function addParam(prop: HttpActionProperty, name: string | symbol | undefined, index: number, from: ParamFrom, type: string, opt: boolean) {
@@ -14,7 +14,7 @@ function addParam(prop: HttpActionProperty, name: string | symbol | undefined, i
 }
 
 /** Bind raw request object */
-export function req() {
+export function Req() {
 	return (target: any, propertyKey: string | symbol, parameterIndex: number) => {
 		let prop = <HttpActionProperty>target[propertyKey];
 		addParam(prop, undefined, parameterIndex, 'req', 'req', false);
@@ -22,7 +22,7 @@ export function req() {
 }
 
 /** Bind raw response object */
-export function res() {
+export function Res() {
 	return (target: any, propertyKey: string | symbol, parameterIndex: number) => {
 		let prop = <HttpActionProperty>target[propertyKey];
 		addParam(prop, undefined, parameterIndex, 'res', 'res', false);
@@ -37,12 +37,12 @@ function addParamBinding(name: string | undefined, optional: boolean | undefined
 }
 
 /** Bind the whole request.body object */
-export function body(type?: any): (target: Object, propertyKey: string | symbol, parameterIndex: number) => void;
+export function Body(type?: any): (target: Object, propertyKey: string | symbol, parameterIndex: number) => void;
 /** Bind a member of the request.body object */
-export function body(name: string, type: any, optional?: boolean):
+export function Body(name: string, type: any, optional?: boolean):
 	(target: Object, propertyKey: string | symbol, parameterIndex: number) => void;
 /** Implementation */
-export function body(nameOrType?: string | any, type?: any, optional?: boolean) {
+export function Body(nameOrType?: string | any, type?: any, optional?: boolean) {
 	if (typeof nameOrType === 'string') {
 		return addParamBinding(nameOrType, optional, 'body', type);
 	}
@@ -50,17 +50,17 @@ export function body(nameOrType?: string | any, type?: any, optional?: boolean) 
 }
 
 /** Bind an element from query */
-export function query(name: string, type: any, optional?: boolean) { return addParamBinding(name, optional, 'query', type); }
+export function Query(name: string, type: any, optional?: boolean) { return addParamBinding(name, optional, 'query', type); }
 
 
-export function resolver(bind: PropBinding, validator: Validator): (params: any[], req: Req, res: Res) => any {
+export function resolver(bind: PropBinding, validator: Validator): (params: any[], req: Request, res: Response) => any {
 	switch (bind.from) {
-		case 'req': return (params: any[], req: Req, res: Res) => { params[bind.index] = req; };
-		case 'res': return (params: any[], req: Req, res: Res) => { params[bind.index] = res; };
+		case 'req': return (params: any[], req: Request, res: Response) => { params[bind.index] = req; };
+		case 'res': return (params: any[], req: Request, res: Response) => { params[bind.index] = res; };
 
 		// Query: we DON'T have body-parser here
 		case 'query':
-			return (params: any[], req: Req, res: Res) => {
+			return (params: any[], req: Request, res: Response) => {
 				let value = req.query[<string|symbol>bind.name];
 				if (value === undefined) {
 					if (!bind.opt) throw new WebError(`Missing property: ${bind.name}`, 400);
@@ -73,7 +73,7 @@ export function resolver(bind: PropBinding, validator: Validator): (params: any[
 			};
 
 		// Body: we MUST have body-parser here
-		case 'body': return (params: any[], req: Req, res: Res) => {
+		case 'body': return (params: any[], req: Request, res: Response) => {
 			// It MUST be parsed
 			let parsed = req.body[<string|symbol>bind.name];
 			if (parsed === undefined) {
@@ -86,7 +86,7 @@ export function resolver(bind: PropBinding, validator: Validator): (params: any[
 		};
 
 		// Full-body: we MUST have body-parser here
-		case 'full-body': return (params: any[], req: Req, res: Res) => {
+		case 'full-body': return (params: any[], req: Request, res: Response) => {
 			// Cannot be optional
 			if (req.body === undefined) {
 				throw new WebError(`Empty Body`, 400);

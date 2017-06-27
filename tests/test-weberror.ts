@@ -9,20 +9,20 @@ declare var Promise;
 var localBaseUrl = baseUrl + 'error/';
 
 
-@web.controller('error')
+@web.Controller('error')
 class ErrorController extends web.AdvancedController {
 
-	@web.get()
+	@web.Get()
 	test1() {
 		throw new web.WebError('ErrorText1');
 	}
 
-	@web.post()
+	@web.Post()
 	test2() {
 		throw new web.WebError('ErrorText2', 400);
 	}
 
-	@web.put()
+	@web.Put()
 	test3() {
 		throw new web.WebError('ErrorText3', { statusCode: 405, errorCode: 1 });
 	}

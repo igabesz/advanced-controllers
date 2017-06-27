@@ -9,11 +9,11 @@ import { app, baseUrl } from './test-base';
 var localBaseUrl = baseUrl + 'returns/';
 
 
-@web.controller('returns')
+@web.Controller('returns')
 class ReturnsTestController extends web.AdvancedController {
-	@web.get('get-promise')
+	@web.Get('get-promise')
 	getPromise(
-		@web.query('value', Number) value: number
+		@web.Query('value', Number) value: number
 	) {
 		return new Promise((resolve, reject) => {
 			setTimeout(() => {
@@ -22,9 +22,9 @@ class ReturnsTestController extends web.AdvancedController {
 		});
 	}
 
-	@web.get('get-promise-rejected')
+	@web.Get('get-promise-rejected')
 	getPromiseRejected(
-		@web.query('code', Number) code: number
+		@web.Query('code', Number) code: number
 	) {
 		return new Promise((resolve, reject) => {
 			setTimeout(() => {

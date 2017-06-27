@@ -10,9 +10,9 @@ import { app, baseUrl } from './test-base';
 const myNamespace = 'my-namespace';
 const localBaseUrl = baseUrl + myNamespace + '/somectrl';
 
-@web.controller('somectrl')
+@web.Controller('somectrl')
 class NamespaceController extends web.AdvancedController {
-	@web.get()
+	@web.Get()
 	test() { return { done: true }; }
 }
 

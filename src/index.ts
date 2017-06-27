@@ -1,12 +1,12 @@
 export {
-	Req,
-	Res,
+	Request,
+	Response,
 	WebError,
 	Validator
 } from './types';
 export * from './methods';
 export * from './middleware';
-export { permission } from './permission';
+export { Permission } from './permission';
 export * from './validator';
-export { req, res, body, query } from './params';
+export { Req, Res, Body, Query } from './params';
 export { AdvancedController, AdvancedControllerSettings } from './register';

@@ -1,4 +1,4 @@
-import { HttpActionProperty, Req, Res, RequestWithUser, WebError, getAllFuncs } from './types';
+import { HttpActionProperty, Request, Response, RequestWithUser, WebError, getAllFuncs } from './types';
 
 
 function permissionOnAction(permName: string | undefined, target: any, funcName: string) {
@@ -29,7 +29,7 @@ function permissionOnClass(permName: string | undefined, target: any) {
  * Decorator for actions
  * @param Name of permission. Defaults to the name of the function
  */
-export function permission(name?: string) {
+export function Permission(name?: string) {
 	return (target: any, funcName?: string) => {
 		// Applied on an action or a class?
 		if (funcName) permissionOnAction(name, target, funcName);

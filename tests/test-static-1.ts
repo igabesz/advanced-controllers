@@ -5,31 +5,31 @@ import * as web from '../lib/index';
 import { app, baseUrl } from './test-base';
 
 
-@web.controller('static-1')
+@web.Controller('static-1')
 class Static1TestController extends web.AdvancedController {
-	@web.permission('static-1')
-	@web.get()
+	@web.Permission('static-1')
+	@web.Get()
 	get() { return 'get'; }
 }
 
-@web.controller('static-2')
+@web.Controller('static-2')
 class Static2TestController extends web.AdvancedController {
-	@web.permission('static-2a')
-	@web.get()
+	@web.Permission('static-2a')
+	@web.Get()
 	get() { return 'get'; }
 
-	@web.permission('static-2b')
-	@web.post()
+	@web.Permission('static-2b')
+	@web.Post()
 	post() { return 'post'; }
 
-	@web.get('get-no-perm')
+	@web.Get('get-no-perm')
 	getNoPerm() { return 'get-no-perm'; }
 }
 
-@web.permission('static-3')
-@web.controller('static-3')
+@web.Permission('static-3')
+@web.Controller('static-3')
 class Static3TestController extends web.AdvancedController {
-	@web.get()
+	@web.Get()
 	get() { return 'get'; }
 }
 

@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { Validator, Req, Res } from './types';
+import { Validator } from './types';
 
 
 export const validators: Validator[] = [

@@ -1,7 +1,7 @@
 import { HttpActionProperty } from './types';
 
 
-export function controller(controllerName: string) {
+export function Controller(controllerName: string) {
 	if (controllerName[0] !== '/')
 		controllerName = '/' + controllerName;
 
@@ -27,9 +27,9 @@ function routeDeclaration(method: string, name?: string) {
 	};
 }
 
-export function get(name?: string) { return routeDeclaration('GET', name); }
-export function post(name?: string) { return routeDeclaration('POST', name); }
-export function put(name?: string) { return routeDeclaration('PUT', name); }
-export function head(name?: string) { return routeDeclaration('HEAD', name); }
-export function options(name?: string) { return routeDeclaration('OPTIONS', name); }
-export function del(name?: string) { return routeDeclaration('DELETE', name); }
+export function Get(name?: string) { return routeDeclaration('GET', name); }
+export function Post(name?: string) { return routeDeclaration('POST', name); }
+export function Put(name?: string) { return routeDeclaration('PUT', name); }
+export function Head(name?: string) { return routeDeclaration('HEAD', name); }
+export function Options(name?: string) { return routeDeclaration('OPTIONS', name); }
+export function Del(name?: string) { return routeDeclaration('DELETE', name); }

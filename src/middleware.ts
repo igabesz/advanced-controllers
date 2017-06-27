@@ -1,7 +1,7 @@
-import { HttpActionProperty, Req, Res } from './types';
+import { HttpActionProperty, Request, Response } from './types';
 
 
-function addMiddleware(prop: HttpActionProperty, mwFunc: (req: Req, res: Res, next: Function) => void) {
+function addMiddleware(prop: HttpActionProperty, mwFunc: (req: Request, res: Response, next: Function) => void) {
 	prop.action = prop.action || {
 		url: null,
 		method: null,
@@ -11,9 +11,10 @@ function addMiddleware(prop: HttpActionProperty, mwFunc: (req: Req, res: Res, ne
 	prop.action.middlewares.push(mwFunc);
 }
 
-export function middleware(middlewareFuncName: string): (target: any, funcName: string) => void;
-export function middleware(middlewareFunc: ((req: Req, res: Res, next: Function) => void)): (target: any, funcName: string) => void;
-export function middleware(middlewareFunc: ((req: Req, res: Res, next: Function) => void) | string) {
+export function Middleware(middlewareFuncName: string): (target: any, funcName: string) => void;
+export function Middleware(middlewareFunc: ((req: Request, res: Response, next: Function) => void)):
+	(target: any, funcName: string) => void;
+export function Middleware(middlewareFunc: ((req: Request, res: Response, next: Function) => void) | string) {
 	return (target: any, funcName: string) => {
 		if (typeof middlewareFunc === 'string') {
 			addMiddleware(target[funcName], target[middlewareFunc]);
