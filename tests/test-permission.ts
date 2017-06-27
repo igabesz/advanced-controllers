@@ -171,4 +171,13 @@ describe('Permission', () => {
 		});
 	});
 
+	it('should have proper whitelists', () => {
+		let whiteList = ctrl.getWhiteList();
+		assert.equal(whiteList.length, 1);
+		assert.equal(whiteList[0], '/perm/noperm');
+		whiteList = ctrl2.getWhiteList();
+		assert.equal(whiteList.length, 1);
+		assert.equal(whiteList[0], '/perm-class/public');
+	});
+
 });

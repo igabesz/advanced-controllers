@@ -120,7 +120,7 @@ function generateHandler({
 }
 
 export interface AdvancedControllerSettings {
-	/** To specify a route for your controller(s) */
+	/** To specify a route for your controller(s). NOTE that namespaces are not included in whiteLists. */
 	namespace?: string;
 	/** Log the registration of the controller */
 	debugLogger?: (message: string, meta?: any) => void;
@@ -139,7 +139,9 @@ export abstract class AdvancedController {
 		}
 	}
 
-	/** Returns the permissions of all AdvancedController instances created so far */
+	/**
+	 * Returns the permissions of all AdvancedController instances created so far.
+	 */
 	static getAllPermissions(): string[] {
 		let results: string[] = [];
 		for (let ctrl of AdvancedController.controllers) {
@@ -153,9 +155,25 @@ export abstract class AdvancedController {
 	}
 
 	/**
+	 * Returns the whitelist of all AdvancedController instances created so far.
+	 * NOTE that this does not contain namespaces.
+	 */
+	static getAllWhiteList(): string[] {
+		let results: string[] = [];
+		for (let ctrl of AdvancedController.controllers) {
+			for (let perm of ctrl.getWhiteList()) {
+				if (results.indexOf(perm) === -1) {
+					results.push(perm);
+				}
+			}
+		}
+		return results;
+	}
+
+	/**
 	 * Set roles for permission check.
 	 * Note that this will force role-based authorization, e.g. 'req.user.roles' must be a string array.
-	 * @param `roles`: Role objects containing the name of the role and the permissions.
+	 * @param `roles`: Roles containing the permissions
 	 */
 	static setRoles(roles: { name: string, permissions: string[] }[]) {
 		AdvancedController.roleMap.clear();
@@ -166,9 +184,7 @@ export abstract class AdvancedController {
 		setRoleMap(AdvancedController.roleMap);
 	}
 
-	constructor() {
-		AdvancedController.controllers.push(this);
-	}
+	constructor() { AdvancedController.controllers.push(this); }
 
 	/** Registers this controller */
 	register(app: express.Express, settings?: AdvancedControllerSettings) {
@@ -189,7 +205,9 @@ export abstract class AdvancedController {
 		}
 	}
 
-	/** Returns the permissions of this controller */
+	/**
+	 * Returns the permissions of this controller.
+	 */
 	getPermissions(): string[] {
 		let result: string[] = [];
 		let ctor = this.constructor as any;
@@ -198,9 +216,30 @@ export abstract class AdvancedController {
 			let actionFunc = ctor.prototype[name] as HttpActionProperty;
 			if (!actionFunc) continue;
 			if (actionFunc.action) {
-				let permName = actionFunc.action.permission;
-				if (typeof permName === 'string')
-					result.push(permName);
+				let permission = actionFunc.action.permission;
+				if (typeof permission === 'string')
+					result.push(permission);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Returns the whitelist of this controller.
+	 * NOTE that this does not contain namespaces.
+	 */
+	getWhiteList(): string[] {
+		let result: string[] = [];
+		let ctor = this.constructor as any;
+		let funcNames = getAllFuncs(this);
+		for (let name of funcNames) {
+			let actionFunc = ctor.prototype[name] as HttpActionProperty;
+			if (!actionFunc) continue;
+			if (actionFunc.action) {
+				let permission = actionFunc.action.permission;
+				if (permission === false || permission === undefined) {
+					result.push(ctor.__controller.name + actionFunc.action.url);
+				}
 			}
 		}
 		return result;

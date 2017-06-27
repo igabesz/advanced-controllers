@@ -76,4 +76,10 @@ describe('Static AdvancedController', () => {
 		assert.notEqual(permissions.indexOf('static-2b'), -1);
 		assert.notEqual(permissions.indexOf('static-3'), -1);
 	});
+
+	it('should have correct global whiteList', () => {
+		let whiteList = web.AdvancedController.getAllWhiteList();
+		assert.equal(whiteList.length, 1);
+		assert.equal(whiteList[0], '/static-2/get-no-perm');
+	});
 });
