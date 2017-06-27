@@ -31,16 +31,16 @@ class MiddlewareTestController extends web.AdvancedController {
 	}
 
 	@web.get('explicit-middleware')
-	@web.middleware(function(req, res, next) { this.middlewareCalled = true; next(); })
+	@web.middleware(function(this: MiddlewareTestController, eq, res, next) { this.middlewareCalled = true; next(); })
 	explicitMiddleware() {
 		return this.middlewareCalled;
 	}
 
-	@web.get('explicit-array-function-middleware')
-	@web.middleware((req, res, next) => { this.middlewareCalled = true; next(); })
-	explicitArrayFunctionMiddleware() {
-		return this.middlewareCalled;
-	}
+	// @web.get('explicit-array-function-middleware')
+	// @web.middleware((req, res, next) => { (this).middlewareCalled = true; next(); })
+	// explicitArrayFunctionMiddleware() {
+	// 	return this.middlewareCalled;
+	// }
 }
 
 
@@ -54,8 +54,7 @@ describe('MiddlewareTestController', () => {
 
 	before(() => {
 		ctrl = new MiddlewareTestController();
-		ctrl.register(app, () => {});
-		// ctrl.register(app);
+		ctrl.register(app);
 	});
 
 	beforeEach(() => {
@@ -86,13 +85,13 @@ describe('MiddlewareTestController', () => {
 		});
 	});
 
-	it('won\'t work with array functions + ES5 build, sadly...', (done) => {
-		request(localBaseUrl + 'explicit-array-function-middleware', (err, res, body) => {
-			let data = assertAndParse(err, res, body);
-			assert.equal(data, false);
-			done();
-		});
-	});
+	// it('won\'t work with array functions + ES5 build, sadly...', (done) => {
+	// 	request(localBaseUrl + 'explicit-array-function-middleware', (err, res, body) => {
+	// 		let data = assertAndParse(err, res, body);
+	// 		assert.equal(data, false);
+	// 		done();
+	// 	});
+	// });
 });
 
 

@@ -11,10 +11,10 @@ function addMiddleware(prop: HttpActionProperty, mwFunc: (req: Req, res: Res, ne
 	prop.action.middlewares.push(mwFunc);
 }
 
-export function middleware(middlewareFuncName: string);
-export function middleware(middlewareFunc: ((req: Req, res: Res, next: Function) => void));
+export function middleware(middlewareFuncName: string): (target: any, funcName: string) => void;
+export function middleware(middlewareFunc: ((req: Req, res: Res, next: Function) => void)): (target: any, funcName: string) => void;
 export function middleware(middlewareFunc: ((req: Req, res: Res, next: Function) => void) | string) {
-	return (target, funcName) => {
+	return (target: any, funcName: string) => {
 		if (typeof middlewareFunc === 'string') {
 			addMiddleware(target[funcName], target[middlewareFunc]);
 		}

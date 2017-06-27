@@ -14,7 +14,7 @@ export type ParamFrom = 'req' | 'res' | 'query' | 'body' | 'full-body';
 export type PropBinding = {
 	index: number;
 	from: ParamFrom;
-	name: string | symbol;
+	name: string | symbol | undefined;
 	type: any;
 	opt?: boolean;
 };
@@ -76,13 +76,14 @@ export interface Validator {
 
 export interface RequestWithUser extends Req {
 	user: {
-		hasPermission(permission: string): boolean | Promise<boolean>;
+		hasPermission?(permission: string): boolean | Promise<boolean>;
+		roles?: string[];
 	};
 }
 
 // https://stackoverflow.com/questions/31054910/get-functions-methods-of-a-class
-export function getAllFuncs(obj) {
-	var props = [];
+export function getAllFuncs(obj: any): string[] {
+	var props: string[] = [];
 	let protoObj = obj;
 	while (protoObj) {
 		props = props.concat(Object.getOwnPropertyNames(protoObj));

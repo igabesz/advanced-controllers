@@ -6,7 +6,6 @@ import * as web from '../lib/index';
 import { app, baseUrl } from './test-base';
 
 
-declare var Promise;
 var localBaseUrl = baseUrl + 'returns/';
 
 
@@ -46,7 +45,7 @@ describe('ReturnsTestController', () => {
 
 	before(() => {
 		mainController = new ReturnsTestController();
-		mainController.register(app, () => {});
+		mainController.register(app);
 	});
 
 	it('should return the promise value', (done) => {

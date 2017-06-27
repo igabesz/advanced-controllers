@@ -36,7 +36,7 @@ describe('MethodTestController', () => {
 
 	before(() => {
 		ctrl = new MethodTestController();
-		ctrl.register(app, () => {});
+		ctrl.register(app);
 	});
 
 	it('should return get', (done) => {

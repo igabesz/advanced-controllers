@@ -2,7 +2,8 @@
     "compilerOptions": {
         "target": "es5",
         "module": "commonjs",
-        "lib": ["es5", "es2015.promise"],
+        "lib": ["es2015"],
+        "strict": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "declaration": false,
@@ -10,12 +11,5 @@
         "removeComments": false,
         "preserveConstEnums": true,
         "sourceMap": false
-    },
-    "filesGlob": [
-        "../typings/main.d.ts",
-        "./*.ts"
-    ],
-    "atom": {
-        "rewriteTsconfig": false
     }
 }

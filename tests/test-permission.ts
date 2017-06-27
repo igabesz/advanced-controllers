@@ -32,7 +32,7 @@ class PermissionController extends web.AdvancedController {
 	@web.get()
 	testOneB() { return { done: true }; }
 
-	@web.permission('perm:test-two')
+	@web.permission('perm.test-two')
 	@web.post('test2')
 	testTwo() { return { done: true }; }
 
@@ -56,9 +56,9 @@ class PermissionController2 extends web.AdvancedController {
 let ctrl: PermissionController;
 let ctrl2: PermissionController2;
 let permissionsShouldBe = [
-	'perm:test1-a',
-	'perm:testOneB',
-	'perm:test-two',
+	'perm.test1-a',
+	'perm.testOneB',
+	'perm.test-two',
 ];
 
 describe('Permission', () => {
@@ -102,7 +102,7 @@ describe('Permission', () => {
 
 	it('should pass with authentication and good permissions', (done) => {
 		authenticator.enabled = true;
-		authenticator.permissions.push('perm:test-two');
+		authenticator.permissions.push('perm.test-two');
 		request.post(`${localBaseUrl}/test2`, {}, (err, res, body) => {
 			let data = JSON.parse(body);
 			assert(!err);

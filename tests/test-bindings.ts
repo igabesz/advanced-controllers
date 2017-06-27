@@ -11,8 +11,8 @@ var localBaseUrl = baseUrl + 'binding/';
 
 @web.controller('binding')
 class BindingTestController extends web.AdvancedController {
-	items = [];
-	message: string = null;
+	items: number[] = [];
+	message: string;
 
 	constructor() {
 		super();
@@ -81,7 +81,7 @@ describe('BindingTestController', () => {
 
 	before(() => {
 		mainController = new BindingTestController();
-		mainController.register(app, () => {});
+		mainController.register(app);
 	});
 
 	it('should serve req and res', (done) => {
@@ -169,10 +169,3 @@ describe('BindingTestController', () => {
 		});
 	});
 });
-
-
-
-
-
-
-/**/

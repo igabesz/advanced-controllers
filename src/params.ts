@@ -3,10 +3,10 @@ import { Request as Req, Response as Res } from 'express';
 export { Request as Req, Response as Res } from 'express';
 
 
-function addParam(prop: HttpActionProperty, name: string | symbol, index: number, from: ParamFrom, type: string, opt: boolean) {
+function addParam(prop: HttpActionProperty, name: string | symbol | undefined, index: number, from: ParamFrom, type: string, opt: boolean) {
 	prop.action = prop.action || {
-		url: null,
-		method: null,
+		url: undefined,
+		method: undefined,
 		params: [],
 		middlewares: [],
 	};
@@ -15,37 +15,38 @@ function addParam(prop: HttpActionProperty, name: string | symbol, index: number
 
 /** Bind raw request object */
 export function req() {
-	return (target: Object, propertyKey: string | symbol, parameterIndex: number) => {
+	return (target: any, propertyKey: string | symbol, parameterIndex: number) => {
 		let prop = <HttpActionProperty>target[propertyKey];
-		addParam(prop, null, parameterIndex, 'req', 'req', false);
+		addParam(prop, undefined, parameterIndex, 'req', 'req', false);
 	};
 }
 
 /** Bind raw response object */
 export function res() {
-	return (target: Object, propertyKey: string | symbol, parameterIndex: number) => {
+	return (target: any, propertyKey: string | symbol, parameterIndex: number) => {
 		let prop = <HttpActionProperty>target[propertyKey];
-		addParam(prop, null, parameterIndex, 'res', 'res', false);
+		addParam(prop, undefined, parameterIndex, 'res', 'res', false);
 	};
 }
 
-function addParamBinding(name: string, optional: boolean, from: ParamFrom, type: any) {
-	return (target: Object, propertyKey: string | symbol, parameterIndex: number) => {
+function addParamBinding(name: string | undefined, optional: boolean | undefined, from: ParamFrom, type: any) {
+	return (target: any, propertyKey: string | symbol, parameterIndex: number) => {
 		let prop = <HttpActionProperty>target[propertyKey];
-		addParam(prop, name, parameterIndex, from, type, optional);
+		addParam(prop, name, parameterIndex, from, type, optional || false);
 	};
 }
 
 /** Bind the whole request.body object */
 export function body(type?: any): (target: Object, propertyKey: string | symbol, parameterIndex: number) => void;
 /** Bind a member of the request.body object */
-export function body(name: string, type: any, optional?: boolean): (target: Object, propertyKey: string | symbol, parameterIndex: number) => void;
+export function body(name: string, type: any, optional?: boolean):
+	(target: Object, propertyKey: string | symbol, parameterIndex: number) => void;
 /** Implementation */
 export function body(nameOrType?: string | any, type?: any, optional?: boolean) {
 	if (typeof nameOrType === 'string') {
 		return addParamBinding(nameOrType, optional, 'body', type);
 	}
-	return addParamBinding(null, false, 'full-body', nameOrType || Object);
+	return addParamBinding(undefined, false, 'full-body', nameOrType || Object);
 }
 
 /** Bind an element from query */
@@ -60,7 +61,7 @@ export function resolver(bind: PropBinding, validator: Validator): (params: any[
 		// Query: we DON'T have body-parser here
 		case 'query':
 			return (params: any[], req: Req, res: Res) => {
-				let value = req.query[bind.name];
+				let value = req.query[<string|symbol>bind.name];
 				if (value === undefined) {
 					if (!bind.opt) throw new WebError(`Missing property: ${bind.name}`, 400);
 					params[bind.index] = undefined;
@@ -74,7 +75,7 @@ export function resolver(bind: PropBinding, validator: Validator): (params: any[
 		// Body: we MUST have body-parser here
 		case 'body': return (params: any[], req: Req, res: Res) => {
 			// It MUST be parsed
-			let parsed = req.body[bind.name];
+			let parsed = req.body[<string|symbol>bind.name];
 			if (parsed === undefined) {
 				if (!bind.opt) throw new WebError(`Missing property: ${bind.name}`, 400);
 				params[bind.index] = undefined;

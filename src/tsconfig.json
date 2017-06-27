@@ -3,20 +3,13 @@
         "target": "es5",
         "module": "commonjs",
         "lib": ["es2015"],
+        "strict": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "declaration": true,
-        "noImplicitAny": false,
         "removeComments": true,
         "preserveConstEnums": true,
         "sourceMap": true,
         "outDir": "../lib"
-    },
-    "filesGlob": [
-        "../typings/main.d.ts",
-        "./*.ts"
-    ],
-    "atom": {
-        "rewriteTsconfig": false
     }
 }

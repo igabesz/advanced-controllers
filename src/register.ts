@@ -3,7 +3,7 @@ import * as _ from 'lodash';
 import { Req, Res, HttpActionProperty, RequestWithUser, WebError, getAllFuncs } from './types';
 import { validators } from './validator';
 import { resolver } from './params';
-import { getPermName, permCheckGenerator, PermCheckResult } from './permission';
+import { getPermName, permCheckGenerator, PermCheckResult, setRoleMap } from './permission';
 
 
 function handleError(err: Error | any, res: Res) {
@@ -64,7 +64,7 @@ function registerControllerFunction(
 	let actionProcessor = generateHandler({ binders, argLength, errorLogger, autoClose, thisBind, actionFunc, permCheck });
 
 	// Applying actionProcessor on app
-	let method = _.toLower(action.method);
+	let method = <'get'|'post'|'put'|'delete'|'options'|'head'>_.toLower(action.method);
 	app[method](url, actionProcessor);
 }
 
@@ -120,20 +120,26 @@ function generateHandler({
 }
 
 export interface AdvancedControllerSettings {
+	/** To specify a route for your controller(s) */
 	namespace?: string;
+	/** Log the registration of the controller */
 	debugLogger?: (message: string, meta?: any) => void;
+	/** Log the errors of the controller during runtime */
 	errorLogger?: (message: string, meta?: any) => void;
 }
 
 export abstract class AdvancedController {
 	private static controllers: AdvancedController[] = [];
+	private static roleMap = new Map<string, string[]>();
 
+	/** Registers all AdvancedController instances created so far */
 	static registerAll(app: express.Express, settings?: AdvancedControllerSettings) {
 		for (let ctrl of AdvancedController.controllers) {
 			ctrl.register(app, settings);
 		}
 	}
 
+	/** Returns the permissions of all AdvancedController instances created so far */
 	static getAllPermissions(): string[] {
 		let results: string[] = [];
 		for (let ctrl of AdvancedController.controllers) {
@@ -146,12 +152,25 @@ export abstract class AdvancedController {
 		return results;
 	}
 
-	constructor() {
-		if (AdvancedController.controllers.indexOf(this) === -1) {
-			AdvancedController.controllers.push(this);
+	/**
+	 * Set roles for permission check.
+	 * Note that this will force role-based authorization, e.g. 'req.user.roles' must be a string array.
+	 * @param `roles`: Role objects containing the name of the role and the permissions.
+	 */
+	static setRoles(roles: { name: string, permissions: string[] }[]) {
+		AdvancedController.roleMap.clear();
+		for (let role of roles) {
+			AdvancedController.roleMap.set(role.name, role.permissions);
 		}
+		// Update roleMap for permission check
+		setRoleMap(AdvancedController.roleMap);
 	}
 
+	constructor() {
+		AdvancedController.controllers.push(this);
+	}
+
+	/** Registers this controller */
 	register(app: express.Express, settings?: AdvancedControllerSettings) {
 		let ctor = this.constructor as any;
 		if (!ctor || !ctor.__controller || !ctor.__controller.name) {
@@ -170,6 +189,7 @@ export abstract class AdvancedController {
 		}
 	}
 
+	/** Returns the permissions of this controller */
 	getPermissions(): string[] {
 		let result: string[] = [];
 		let ctor = this.constructor as any;

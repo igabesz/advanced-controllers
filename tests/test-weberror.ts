@@ -35,7 +35,7 @@ describe('WebError checks', () => {
 
 	before(() => {
 		ctrl = new ErrorController();
-		ctrl.register(app, () => {});
+		ctrl.register(app);
 	});
 
 	it('should return error text', done => {

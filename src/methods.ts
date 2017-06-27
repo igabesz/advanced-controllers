@@ -22,7 +22,7 @@ function setHttpAction(prop: HttpActionProperty, method: string, url: string) {
 }
 
 function routeDeclaration(method: string, name?: string) {
-	return (target: any, key?: string, value?: PropertyDescriptor) => {
+	return (target: any, key: string, value?: PropertyDescriptor) => {
 		setHttpAction(target[key], method, name || key);
 	};
 }

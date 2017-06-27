@@ -6,9 +6,6 @@ import * as web from '../lib/index';
 import { app, baseUrl } from './test-base';
 
 
-declare var Promise;
-
-
 class MissingDecoratorController extends web.AdvancedController {
 	@web.get()
 	anything() {}
@@ -18,7 +15,7 @@ class MissingDecoratorController extends web.AdvancedController {
 class SomeController extends web.AdvancedController {
 	mwCalled = false;
 
-	@web.middleware(function(req, res, next) { this.mwCalled = true; next(); })
+	@web.middleware(function(this: SomeController, req, res, next) { this.mwCalled = true; next(); })
 	nohttpmethod() {}
 }
 
