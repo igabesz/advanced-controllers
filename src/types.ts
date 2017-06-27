@@ -17,7 +17,8 @@ export interface HttpAction {
 	method: string;
 	url: string;
 	params: PropBinding[];
-	permission?: string;
+	/** Name of the required permission, or `true` if authorization needed, or `false` if public */
+	permission?: string | boolean;
 	middlewares: ((req: Request, res: Response, next: Function) => void)[];
 }
 

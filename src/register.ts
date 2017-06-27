@@ -3,7 +3,7 @@ import * as _ from 'lodash';
 import { Request, Response, HttpActionProperty, RequestWithUser, WebError, getAllFuncs } from './types';
 import { validators } from './validator';
 import { resolver } from './params';
-import { getPermName, permCheckGenerator, PermCheckResult, setRoleMap } from './permission';
+import { permCheckGenerator, PermCheckResult, setRoleMap } from './permission';
 
 
 function handleError(err: Error | any, res: Response) {
@@ -198,8 +198,8 @@ export abstract class AdvancedController {
 			let actionFunc = ctor.prototype[name] as HttpActionProperty;
 			if (!actionFunc) continue;
 			if (actionFunc.action) {
-				let permName = getPermName(this, actionFunc);
-				if (permName !== undefined)
+				let permName = actionFunc.action.permission;
+				if (typeof permName === 'string')
 					result.push(permName);
 			}
 		}

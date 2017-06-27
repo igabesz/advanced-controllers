@@ -1,12 +1,23 @@
-import { HttpActionProperty } from './types';
+import { HttpActionProperty, getAllFuncs } from './types';
 
 
+/** Decorator for classes */
 export function Controller(controllerName: string) {
 	if (controllerName[0] !== '/')
 		controllerName = '/' + controllerName;
 
 	return (target: any) => {
 		target.__controller = { name: controllerName };
+
+		// Handle missing permissions
+		for (let actionName of getAllFuncs(target.prototype)) {
+			let action = target.prototype[actionName] as HttpActionProperty;
+			if (action && action.action) {
+				if (action.action.permission === '') {
+					action.action.permission = `${controllerName}.${action.action.url}`.replace(/\//g, '');
+				}
+			}
+		}
 	};
 }
 

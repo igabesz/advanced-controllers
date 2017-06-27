@@ -38,6 +38,10 @@ class PermissionController extends web.AdvancedController {
 
 	@web.Get('noperm')
 	noPerm() { return { done: true }; }
+
+	@web.Get('auth')
+	@web.Authorize()
+	auth() { return { done: true }; }
 }
 
 
@@ -50,6 +54,10 @@ class PermissionController2 extends web.AdvancedController {
 
 	@web.Get('test2')
 	testTwo() { return { done: true }; }
+
+	@web.Get('public')
+	@web.AllowAnonymus()
+	testThree() { return { done: true }; }
 }
 
 
@@ -124,10 +132,43 @@ describe('Permission', () => {
 		});
 	});
 
+	it('should use Authorize to preven unauthenticated access', done => {
+		authenticator.enabled = false;
+		request(localBaseUrl + '/auth', (err, res, body) => {
+			assert(!err);
+			assert.equal(res.statusCode, 401);
+			done();
+		});
+	});
+
+	it('should use Authorize to allow any authenticated access', done => {
+		authenticator.enabled = true;
+		authenticator.permissions = [];
+		request(localBaseUrl + '/auth', (err, res, body) => {
+			assert(!err);
+			assert.equal(res.statusCode, 200);
+			let data = JSON.parse(body);
+			assert.deepEqual(data, { done: true });
+			done();
+		});
+	});
+
 	it('should handle class-level permissions', () => {
 		let p = ctrl2.getPermissions();
 		assert.equal(p.length, 2);
 		assert.equal(p[0], 'func-perm');
 		assert.equal(p[1], 'class-perm');
 	});
+
+	it('should allow AllowAnonymus', done => {
+		authenticator.enabled = false;
+		request(baseUrl + 'perm-class/public', (err, res, body) => {
+			assert(!err);
+			assert.equal(res.statusCode, 200);
+			let data = JSON.parse(body);
+			assert.deepEqual(data, { done: true });
+			done();
+		});
+	});
+
 });

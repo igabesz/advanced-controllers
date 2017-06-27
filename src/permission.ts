@@ -1,7 +1,7 @@
 import { HttpActionProperty, Request, Response, RequestWithUser, WebError, getAllFuncs } from './types';
 
 
-function permissionOnAction(permName: string | undefined, target: any, funcName: string) {
+function permissionOnAction(permission: string | boolean, target: any, funcName: string) {
 	let prop = <HttpActionProperty>target[funcName];
 	prop.action = prop.action || {
 		url: null,
@@ -9,52 +9,61 @@ function permissionOnAction(permName: string | undefined, target: any, funcName:
 		params: [],
 		middlewares: [],
 	};
-	prop.action.permission = permName || '';
+	prop.action.permission = permission;
 }
 
-function permissionOnClass(permName: string | undefined, target: any) {
-	permName = permName || target.__controller.name;
-	if (!permName) throw new Error(`Cannot add empty permission on class`);
+function permissionOnClass(permission: string | boolean, target: any) {
 	// NOTE: At this point the actions already exist and are decorated
 	let props = getAllFuncs(target.prototype);
 	for (let propName of props) {
 		let prop = target.prototype[propName];
-		if (prop && prop.action && prop.action.url) {
-			prop.action.permission = prop.action.permission || permName;
+		if (prop && prop.action && prop.action.url && prop.action.permission === undefined) {
+			prop.action.permission = permission;
 		}
 	}
 }
 
 /**
- * Decorator for actions
+ * Decorator for actions and classes.
  * @param Name of permission. Defaults to the name of the function
  */
 export function Permission(name?: string) {
 	return (target: any, funcName?: string) => {
-		// Applied on an action or a class?
-		if (funcName) permissionOnAction(name, target, funcName);
-		else permissionOnClass(name, target);
+		// Applied on a function
+		if (funcName) {
+			// This will be handled in the Constructor decorator later
+			permissionOnAction(name || '', target, funcName);
+		}
+		// Applied on a class
+		else {
+			name = name || (target.__controller && target.__controller.name);
+			if (!name) throw new Error('Cannot handle Permission decorator: Controller name is unknown');
+			permissionOnClass(name, target);
+		}
 	};
 }
 
-/** Internal helper */
-export function getPermName(target: any, actionFunc: HttpActionProperty) {
-	if (actionFunc.action.permission === undefined) return undefined;
-	let permName = actionFunc.action.permission;
-	if (permName === '') {
-		let ctrlName = target.constructor.__controller.name;
-		let actionName = actionFunc.action.url;
-		permName = `${ctrlName}.${actionName}`.replace(/\//g, '');
-	}
-	return permName;
+/** Decorator for actions and classes. The user must be authenticated to have access */
+export function Authorize() {
+	return (target: any, funcName?: string) => {
+		if (funcName) permissionOnAction(true, target, funcName);
+		else permissionOnClass(true, target);
+	};
 }
 
-export type PermCheckResult = {
-	success: true
-} | {
-	success: false;
-	reason: 'Unauthenticated' | 'Unauthorized';
-};
+/** Decorator for actions and classes. No authentication required */
+export function AllowAnonymus() {
+	return (target: any, funcName?: string) => {
+		if (funcName) permissionOnAction(false, target, funcName);
+		else permissionOnClass(false, target);
+	};
+}
+
+
+export type PermCheckResult =
+	{ success: true } |
+	{ success: false, reason: 'Unauthenticated' | 'Unauthorized' };
+
 export module PermCheckResult {
 	export function ok() { return { success: true }; }
 	export function unauthorized() { return { success: false, reason: 'Unauthorized' }; }
@@ -68,13 +77,20 @@ let roleMap: Map<string, string[]> | undefined = undefined;
 export function setRoleMap(newRoleMap: Map<string, string[]>) { roleMap = newRoleMap; }
 
 /** Internal helper: Generate permission checker function */
-export function permCheckGenerator(target: any, actionFunc: HttpActionProperty):
-	(req: RequestWithUser) => Promise<PermCheckResult>
-{
-	let permName = getPermName(target, actionFunc);
-	if (permName === undefined) {
+export function permCheckGenerator(target: any, actionFunc: HttpActionProperty): (req: RequestWithUser) => Promise<PermCheckResult> {
+	let permName = actionFunc.action.permission;
+	// No authentication required
+	if (permName === undefined || permName === false) {
 		return (req: RequestWithUser) => Promise.resolve(PermCheckResult.ok());
 	}
+	// Must be authenticated
+	if (permName === true) {
+		return (req: RequestWithUser) => {
+			if (req.user) return Promise.resolve(PermCheckResult.ok());
+			return Promise.resolve(PermCheckResult.unauthenticated());
+		};
+	}
+	// Must be authenticated + authorized
 	return async(req: RequestWithUser) => {
 		// 1st: Check authentication
 		if (!req.user) return PermCheckResult.unauthenticated();
