@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as assert from 'assert';
 import * as request from 'request';
 
-import { Controller, Get, Post, Req, Res, Request, Response, Body, Query, AdvancedController } from '../lib/index';
+import { Controller, Get, Post, Req, Res, Request, Response, Body, Query, Param, AdvancedController } from '../lib/index';
 import { app, baseUrl } from './test-base';
 
 
@@ -63,6 +63,11 @@ class BindingTestController extends AdvancedController {
 		this.message = message;
 		this.items.push(value);
 		return { last: _.last(this.items) };
+	}
+
+	@Get('items-params/:id')
+	itemsParams(@Param('id', Number) id: number) {
+		return { id };
 	}
 }
 
@@ -164,4 +169,23 @@ describe('BindingTestController', () => {
 			done();
 		});
 	});
+
+	it('should parse params', done => {
+		let id = 43;
+		request(localBaseUrl + 'items-params/' + id, (err, res, body) => {
+			generalAssert(err, res);
+			let data = JSON.parse(body);
+			assert.strictEqual(data.id, id);
+			done();
+		});
+	});
+
+	it('should return 404 on missing param (default Express behavior)', done => {
+		let id = 43;
+		request(localBaseUrl + 'items-params/', (err, res, body) => {
+			assert.equal(res.statusCode, 404);
+			done();
+		});
+	});
+
 });

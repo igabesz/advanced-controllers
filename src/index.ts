@@ -8,5 +8,5 @@ export * from './methods';
 export * from './middleware';
 export { Permission } from './permission';
 export * from './validator';
-export { Req, Res, Body, Query } from './params';
+export { Req, Res, Body, Query, Param } from './params';
 export { AdvancedController, AdvancedControllerSettings } from './register';

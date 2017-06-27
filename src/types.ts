@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 export { Request, Response } from 'express';
 
 
-export type ParamFrom = 'req' | 'res' | 'query' | 'body' | 'full-body';
+export type ParamFrom = 'req' | 'res' | 'query' | 'param' | 'body' | 'full-body';
 
 export type PropBinding = {
 	index: number;

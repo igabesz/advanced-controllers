@@ -53,22 +53,29 @@ export function Body(nameOrType?: string | any, type?: any, optional?: boolean) 
 export function Query(name: string, type: any, optional?: boolean) { return addParamBinding(name, optional, 'query', type); }
 
 
+/** Bind an element from param (route) */
+export function Param(name: string, type: any) { return addParamBinding(name, false, 'param', type); }
+
+
+/** Internal helper */
 export function resolver(bind: PropBinding, validator: Validator): (params: any[], req: Request, res: Response) => any {
 	switch (bind.from) {
 		case 'req': return (params: any[], req: Request, res: Response) => { params[bind.index] = req; };
 		case 'res': return (params: any[], req: Request, res: Response) => { params[bind.index] = res; };
 
-		// Query: we DON'T have body-parser here
+		// Query or Param: we DON'T have body-parser here, we have to parse manually
+		case 'param':
 		case 'query':
 			return (params: any[], req: Request, res: Response) => {
-				let value = req.query[<string|symbol>bind.name];
+				let name = <string>bind.name;
+				let value: string = bind.from === 'query' ? req.query[name] : req.params[name];
 				if (value === undefined) {
-					if (!bind.opt) throw new WebError(`Missing property: ${bind.name}`, 400);
+					if (!bind.opt) throw new WebError(`Missing ${bind.from} property: ${bind.name}`, 400);
 					params[bind.index] = undefined;
 					return;
 				}
 				let parsed = validator.parse(value);
-				if (!validator.check(parsed)) throw new Error(`Invalid value: ${bind.name} should be a ${bind.type}`);
+				if (!validator.check(parsed)) throw new Error(`Invalid ${bind.from} value: ${bind.name} should be a ${bind.type}`);
 				params[bind.index] = parsed;
 			};
 
