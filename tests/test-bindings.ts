@@ -82,7 +82,7 @@ describe('BindingTestController', () => {
 
 	before(() => {
 		mainController = new BindingTestController();
-		mainController.register(app);
+		mainController.register(app, { implicitAccess: true });
 	});
 
 	it('should serve req and res', (done) => {

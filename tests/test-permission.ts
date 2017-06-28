@@ -37,6 +37,7 @@ class PermissionController extends web.AdvancedController {
 	testTwo() { return { done: true }; }
 
 	@web.Get('noperm')
+	@web.AllowAnonymus()
 	noPerm() { return { done: true }; }
 
 	@web.Get('auth')
@@ -74,8 +75,8 @@ describe('Permission', () => {
 		app.use(authenticator.mw);
 		ctrl = new PermissionController();
 		ctrl2 = new PermissionController2();
-		ctrl.register(app);
-		ctrl2.register(app);
+		ctrl.register(app, { implicitAccess: true });
+		ctrl2.register(app, { implicitAccess: true });
 	});
 
 	it('should have good permissions', () => {

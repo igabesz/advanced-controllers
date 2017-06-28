@@ -12,6 +12,7 @@ const localBaseUrl = baseUrl + myNamespace + '/somectrl';
 
 @web.Controller('somectrl')
 class NamespaceController extends web.AdvancedController {
+	@web.AllowAnonymus()
 	@web.Get()
 	test() { return { done: true }; }
 }
@@ -19,7 +20,7 @@ class NamespaceController extends web.AdvancedController {
 let ctrl: NamespaceController;
 
 describe('Namespace', () => {
-	it('should be created and registered', () => {
+	it('should be created and registered + AllowAnonymus on action', () => {
 		ctrl = new NamespaceController();
 		ctrl.register(app, { namespace: myNamespace });
 	});

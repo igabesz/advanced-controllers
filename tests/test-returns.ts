@@ -10,6 +10,7 @@ var localBaseUrl = baseUrl + 'returns/';
 
 
 @web.Controller('returns')
+@web.AllowAnonymus()
 class ReturnsTestController extends web.AdvancedController {
 	@web.Get('get-promise')
 	getPromise(
@@ -45,7 +46,7 @@ describe('ReturnsTestController', () => {
 
 	before(() => {
 		mainController = new ReturnsTestController();
-		mainController.register(app);
+		mainController.register(app, { implicitAccess: true });
 	});
 
 	it('should return the promise value', (done) => {

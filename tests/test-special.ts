@@ -6,12 +6,8 @@ import * as web from '../lib/index';
 import { app, baseUrl } from './test-base';
 
 
-class MissingDecoratorController extends web.AdvancedController {
-	@web.Get()
-	anything() {}
-}
-
 @web.Controller('some')
+@web.AllowAnonymus()
 class SomeController extends web.AdvancedController {
 	mwCalled = false;
 
@@ -20,6 +16,7 @@ class SomeController extends web.AdvancedController {
 }
 
 @web.Controller('some2')
+@web.AllowAnonymus()
 class SomeController2 extends web.AdvancedController {
 	nohttpmethod(
 		@web.Query('value', Number) value: number
@@ -27,6 +24,7 @@ class SomeController2 extends web.AdvancedController {
 }
 
 @web.Controller('some3')
+@web.AllowAnonymus()
 class SomeController3 extends web.AdvancedController {
 	dontRegisterMe = () => {};
 
@@ -34,12 +32,30 @@ class SomeController3 extends web.AdvancedController {
 	registerMe() {}
 }
 
+@web.Controller('some3')
+@web.AllowAnonymus()
+class SomeController3Again extends web.AdvancedController {
+	@web.Get('3')
+	get() {}
+}
+
+@web.Controller('implicit-access')
+class ImplicitAccessCtrl extends web.AdvancedController {
+	@web.Get()
+	get() { return { done: true }; }
+}
+
 
 describe('Various Error Checks', () => {
-	it('should not register not-decorated class', () => {
-		let ctrl = new MissingDecoratorController();
+	let implicitCtrl: ImplicitAccessCtrl;
+
+	it('should not instantiate a not-decorated class', () => {
 		assert.throws(() => {
-			ctrl.register(app);
+			class MissingDecoratorController extends web.AdvancedController {
+				@web.Get()
+				anything() {}
+			}
+			let ctrl = new MissingDecoratorController();
 		});
 	});
 
@@ -64,4 +80,29 @@ describe('Various Error Checks', () => {
 		let permissions = ctrl.getPermissions();
 		assert.equal(regCnt, 1);
 	});
+
+	it('should throw error on instantiation with the same controller name', () => {
+		assert.throws(() => {
+			let ctrl = new SomeController3Again();
+		});
+	});
+
+	it('should require `implicitAccess` in settings', () => {
+		implicitCtrl = new ImplicitAccessCtrl();
+		assert.throws(() => {
+			implicitCtrl.register(app);
+		});
+	});
+
+	it('should enable implicit access when `implicitAccess` is in settings', done => {
+		implicitCtrl.register(app, { implicitAccess: true });
+		request.get(baseUrl + 'implicit-access/get', (err, res, body) => {
+			assert(!err);
+			assert.equal(res.statusCode, 200);
+			let data = JSON.parse(body);
+			assert.deepEqual(data, { done: true });
+			done();
+		});
+	});
+
 });

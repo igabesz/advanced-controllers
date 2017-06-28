@@ -11,6 +11,7 @@ var localBaseUrl = baseUrl + 'middleware/';
 
 
 @web.Controller('middleware')
+@web.AllowAnonymus()
 class MiddlewareTestController extends web.AdvancedController {
 	middlewareCalled = false;
 
@@ -52,13 +53,13 @@ describe('MiddlewareTestController', () => {
 		return JSON.parse(body);
 	};
 
-	before(() => {
-		ctrl = new MiddlewareTestController();
-		ctrl.register(app);
+	beforeEach(() => {
+		ctrl && (ctrl.middlewareCalled = false);
 	});
 
-	beforeEach(() => {
-		ctrl.middlewareCalled = false;
+	it('should register classes with AllowAnonymus decorator', () => {
+		ctrl = new MiddlewareTestController();
+		ctrl.register(app);
 	});
 
 	it('should not call the middleware', (done) => {

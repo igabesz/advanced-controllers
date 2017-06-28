@@ -58,6 +58,7 @@ function registerControllerFunction(
 
 	// Creating permission checker
 	let permCheck = permCheckGenerator(thisBind, actionFunc);
+	// TODO: Check permissions
 
 	// Creating actionProcessor
 	let argLength = action.params.length;
@@ -126,11 +127,18 @@ export interface AdvancedControllerSettings {
 	debugLogger?: (message: string, meta?: any) => void;
 	/** Log the errors of the controller during runtime */
 	errorLogger?: (message: string, meta?: any) => void;
+	/**
+	 * Allow actions without explicit access specification?
+	 * (One of these: @Permission, @Authorize, @AllowAnonymus on the class or the action)
+	 * NOTE that this must be true if there is any access control (the upper decorators) in the application AND you want to use implicit access
+	 */
+	implicitAccess?: boolean;
 }
 
 export abstract class AdvancedController {
 	private static controllers: AdvancedController[] = [];
 	private static roleMap = new Map<string, string[]>();
+	private static anyPermissionsCreated = false;
 
 	/** Registers all AdvancedController instances created so far */
 	static registerAll(app: express.Express, settings?: AdvancedControllerSettings) {
@@ -184,7 +192,29 @@ export abstract class AdvancedController {
 		setRoleMap(AdvancedController.roleMap);
 	}
 
-	constructor() { AdvancedController.controllers.push(this); }
+	constructor() {
+		// General validation
+		let ctor = this.constructor as any;
+		if (!ctor.__controller) {
+			throw new Error('AdvancedController must be instantiated with a @Controller decorator');
+		}
+		let myName = ctor.__controller.name;
+		let sameName = AdvancedController.controllers.filter(ctrl => (ctrl.constructor as any).__controller.name === myName);
+		if (sameName.length > 0) {
+			throw new Error(`There is already a controller with this name (${myName})`);
+		}
+		AdvancedController.controllers.push(this);
+		// Check for permissions + prevent divergent permissions
+		let funcNames = getAllFuncs(this);
+		for (let name of funcNames) {
+			let actionFunc = (this as any)[name] as HttpActionProperty;
+			if (!actionFunc || !actionFunc.action) continue;
+			if (actionFunc.action.permission !== undefined) {
+				AdvancedController.anyPermissionsCreated = true;
+			}
+			// TODO Prevent divergent permissions
+		}
+	}
 
 	/** Registers this controller */
 	register(app: express.Express, settings?: AdvancedControllerSettings) {
@@ -192,14 +222,18 @@ export abstract class AdvancedController {
 		if (!ctor || !ctor.__controller || !ctor.__controller.name) {
 			throw new Error('Must use @controller decoration on controller!');
 		}
+		let debugLogger = settings ? settings.debugLogger : undefined;
+		let errorLogger = settings ? settings.errorLogger : undefined;
+		let namespace = settings ? settings.namespace : undefined;
+		let implicitAccess = settings ? settings.implicitAccess : undefined;
 		let funcNames = getAllFuncs(this);
 		for (let name of funcNames) {
 			let actionFunc = ctor.prototype[name] as HttpActionProperty;
 			if (!actionFunc) continue;
 			if (actionFunc.action) {
-				let debugLogger = settings ? settings.debugLogger : undefined;
-				let errorLogger = settings ? settings.errorLogger : undefined;
-				let namespace = settings ? settings.namespace : undefined;
+				if (actionFunc.action.permission === undefined && AdvancedController.anyPermissionsCreated && !implicitAccess) {
+					throw new Error('Must specify `implicitAccess` in settings!');
+				}
 				registerControllerFunction(this, app, actionFunc, debugLogger, errorLogger, namespace);
 			}
 		}

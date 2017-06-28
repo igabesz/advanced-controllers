@@ -23,6 +23,7 @@ class Static2TestController extends web.AdvancedController {
 	post() { return 'post'; }
 
 	@web.Get('get-no-perm')
+	@web.AllowAnonymus()
 	getNoPerm() { return 'get-no-perm'; }
 }
 

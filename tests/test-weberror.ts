@@ -10,6 +10,7 @@ var localBaseUrl = baseUrl + 'error/';
 
 
 @web.Controller('error')
+@web.AllowAnonymus()
 class ErrorController extends web.AdvancedController {
 
 	@web.Get()
