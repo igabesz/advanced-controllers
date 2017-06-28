@@ -5,31 +5,24 @@ Features:
 * MVC-like controllers for Express
 * Easy configuration through `@Decorators`
 * Data binding for request data (query, body, params)
+* Can handle `async` functions and Promises
 * Return value handling (data, exception, Promise)
-* Authorization support (custom, or roles and permissions)
+* Authorization support (custom or roles and permissions)
 * Written in TypeScript, compiled to ES5
 
-See the tests for examples.
-
-**NOTE: There were breaking changes in 1.0.0**
-See the [Change log](CHANGELOG.md) for breaking changes.
+See the tests for examples. See the [Change log](CHANGELOG.md) for breaking changes.
 
 
 ## Not documented yet
 
-We DO HAVE these functions but it takes much time to make documentations, so I'll do it later. Create an issue or check the source if interested.
-
-* **Every 1.0.0 new features**
-* `Body` annotation checking the whole `request.body` object
 * Adding custom validators
-* Usage with `async` action functions
 
 
 ## MVC Features
 
 Inspired on ASP.NET MVC it is possible to create Express based controllers and actions.
 
-```
+```typescript
 import * as web from 'advanced-controllers';
 
 @web.Controller('/kitten')
@@ -71,19 +64,36 @@ kittenCtrl.register(expressApp);
 
 ### Registration details
 
-```
+You can register a single controller or all AdvancedController instances created so far.
+
+```typescript
 kittenCtrl.register(
 	expressApp, // Express app
 	{}, // Optional settings
 );
+
+// OR
+
+AdvancedController.registerAll(expressApp, {});
 ```
+
+Optional `settings` can have these props:
+
+- `namespace`: Prefix for the routes (E.g. `namespace1` --> `/namespace1/ctrl/action`)
+- `debugLogger`: Debug logger for registration
+- `errorLogger`: Any runtime errors (E.g. Errors / promise rejects in actions -- except `WebError` instances, see below at the `WebError` section)
+- `implicitAccess`: See below at Permissions
+
+**Caveats:**
+
+- If you use `AdvancedController.register`, use it once and do not use the instances' `register` methods.
 
 
 ## Data Binding
 
 Tired of calling and validating `let myStuff = req.body.someVariable` in every function? Well, we try to make it a bit more comfortable. We have some limitations though but here's what we've got:
 
-```
+```typescript
 import * as web from 'advanced-controllers';
 
 @web.Controller('/kitten')
@@ -101,24 +111,44 @@ class KittenController extends web.BaseController {
 		@web.Body('kitten', Object) kitten: Kitten
 	) {}
 
-	@web.Del('delete')
-	deleteKitten() {}
+	// POST /kittens/create2, body: {}
+	@web.Post()
+	create2(@web.Body() kitten: Kitten)
+
+	@web.Del('delete/:id')
+	deleteKitten(@web.Param('id') id: string) {}
 }
+```
+
+**Interface**
+
+```typescript
+// Whole body
+export function Body(type?: any): ActionDecorator;
+// Member of body object
+export function Body(name: string, type?: any, optional?: boolean): ActionDecorator;
+// Query winthout type
+export function Query(name: string, optional?: boolean): ActionDecorator;
+// Query with type
+export function Query(name: string, type: any, optional?: boolean): ActionDecorator;
+// Param woth or without type
+export function Param(name: string, type?: any): ActionDecorator;
 ```
 
 **Features:**
 
-* Parsing from query: `query` with these types: `String`, `Number`, `Object`, `Array`
-  * Objects and arrays in query MUST be JSON-serialized
-  * But seriously... arrays and objects in query?
-* Parsing from body: `String`, `Number`, `Object`, `Array`
-* The bound value must be present and must be with the correct type unless you set the 2nd parameter to `true`
-* Currently `body` or `query` annotations are under consideration (returning full body / query)
+* Type parameter is optional
+  * In `Body`: only validation
+  * In `Query` and `Param`: parse + validation
+  * Supported types by default: `String`, `Number`, `Object`, `Array`
+* If there is no type for `Query` and `Param` then the parameter value will be a `string`
+* In `Query` and `Param`: Objects and arrays in query MUST be JSON-serialized. But seriously... arrays and objects in query?
+* The bound value must be present unless you set the `optional` parameter to `true`
 
 
 **Caveats:**
 
-* Don't forget about the parentheses... Good: `@body('foo', String)`, bad: `@body`
+* Don't forget about the parentheses... Good: `@Body()`, bad: `@body`
 * You MUST add the *variable name* when parsing body or query parameter. We cannot parse it for you
   * Well, ehm... actually we could (like the Angular team did) but currently we don't want to. It's kinda ugly. Maybe later
 
@@ -127,7 +157,7 @@ class KittenController extends web.BaseController {
 
 You can access the original `req` or `res` objects with similar syntax. Beware: if you ask the `res` object then we won't handle the return values for you. (Return values are discussed soon.)
 
-```
+```typescript
 @web.Controller('casual')
 class CasualController extends web.BaseController {
 	@web.Get('fancy-function')
@@ -175,7 +205,7 @@ This object extends `Error` and can be used to conveniently send back custom HTT
 * `new WebError(message: string, statusCode: number)`
 * `new WebError(message: string, settings: { statusCode?: number, errorCode?: number})`, the `errorCode` will be in the result JSON as `errors[0].code`
 
-The result will be something like this: `{ "errors": [ { "message": "some-stuff", "code": 1 }]}`
+The result will be something like this: `{ "errors": [ { "message": "some-stuff", "code": 1 }]}` + HTTP 400 header
 
 Customization by overwriting `WebError.requestErrorTransformer`.
 
@@ -184,7 +214,7 @@ Customization by overwriting `WebError.requestErrorTransformer`.
 
 One extra functionality is the utilization of `express.use()`. You can specify middleware calls over the actions.
 
-```
+```typescript
 @web.Controller('middleware')
 class MiddlewareTestController extends web.BaseController {
 
@@ -222,36 +252,68 @@ class MiddlewareTestController extends web.BaseController {
 
 ## Permissions
 
-This app does authorize but it needs the user to be authenticated. Please create an Express middleware providing the following interface.
+Action authorization can be controlled by the following decorators.
+Controller classes and action functions can be decorated (the latter is stronger).
+An action will have a single permission. (You shouldn't use multiple decorators on the same class or action function.)
 
-```
+- `@Permission(name?: string)`: The action requires the `name` permission (default value: `ctrl.action`)
+- `@Authorize()`: The action requires an authenticated user, i.e. `req.user` object must not be `undefined`
+- `@AllowAnonymus`: The action does not require
+
+The permission check can be managed 2 ways.
+
+1. Default: custom permission check. Use a custom middleware before registering the controllers creating the following function on the request object: `req.user.hasPermission(permission: string): boolean | Promise<booleam>`. You can implement it however you'd like to
+2. Role based: Call the `AdvancedController.setRoles(roles: { name: string, permissions: string[] })` function to set the roles and their permissions. The following array should exists: `req.user.roles: string[]`
+
+```typescript
 export interface RequestWithUser extends Req {
 	user: {
-		hasPermission(permission: string): boolean | Promise<boolean>;
+		// Default: custom authorization
+		hasPermission?(permission: string): boolean | Promise<boolean>;
+		// Role-based authorization
+		roles?: string[]
 	};
 }
 ```
 
+You should create the `req.user.hasPermission` function OR the `req.user.roles` array in your custom authorization middleware.
+
+
+### A security enforcement
+
+If you don't use permissions (`@Permission` or `@Authorize` or `@AllowAnonymus`) then you can ignore this subsection.
+
+If there are permission-related decorators in your app then you shall do at least one of the following:
+
+- Decorate public functions (or controllers) with the `@AllowAnonymus` decorator
+- Register the controllers with `implicitAccess`, e.g.: `AdvancedController.regiseterAll(app, { implicitAccess: true })`
+
+This is to prevent unintentional publication of some of your actions by forgetting the `@Permission` decorator.
+
+
+### Example
+
 You can use permissions like this:
 
-```
+```typescript
+// You can annotate this
 @web.Controller('perm')
 class PermissionController extends web.BaseController {
 	// GET /perm/test1-a
-	// Needs permission: 'perm:test1-a'
+	// Needs permission: 'perm.test1-a'
 	@web.Permission()
 	@web.Get('test1-a')
 	testOneA() { return { done: true }; }
 
 	// GET /perm/testOneB
-	// Needs permission: 'perm:TestOneB'
+	// Needs permission: 'perm.TestOneB'
 	@web.Permission()
 	@web.Get()
 	testOneB() { return { done: true }; }
 
 	// POST /perm/test2
-	// Needs permission: 'perm:test-two'
-	@web.Permission('perm:test-two')
+	// Needs permission: 'perm.test-two'
+	@web.Permission('perm.test-two')
 	@web.Post('test2')
 	testTwo() { return { done: true }; }
 
@@ -260,18 +322,35 @@ class PermissionController extends web.BaseController {
 	@web.Get('noperm')
 	@web.AllowAnonymus()
 	noPerm() { return { done: true }; }
+
+	// GET /perm/authorized
+	// Must be authenticated, but no explicit permission required
+	@web.Get('authorized')
+	@web.Authorize()
+	authorized() { return { done: true}; }
 }
 ```
 
-Notes
+### Static functions
 
-* The `permission` decorator can be used on classes as well. It won't override the action-level permissions.
-* When the user is not authenticated (i.e. `req.user.hasPermission` does not exists) the response is: 401 `{ errors: [{ message: "Unauthenticated" }]}`.
+The following static functions help the management of authorization:
+
+- `AdvancedController.getAllPermissions(): string[]`: Aggregates the `getPermission()` results for all `AdvancedController` instances.
+- `AdvancedController.get/allWhiteList(): string[]`: Aggregates the `getWhiteList()` results for all `AdvancedController` instances. This can be used to create a whitelist in he authentication middleware (e.g. skip JWT checks on these URLs). Note that the results contain `/ctrl/action` style URLs but they do NOT contain the `namespace` if there is any (i.e. NOT `/namespace/ctrl/action`).
+
+
+### Notes and Caveats
+
+Notes:
+
+* Note that this package authorizes but NOT authenticates.
+* Note that only one permission check method works at a time. By default: `hasPermission`. After `AdvancedController.setRoles` is called: role-based.
+* The permission-related decorator can be used on classes as well. It won't override the action-level permissions though.
+* When the user is not authenticated (most commonly: `req.user` does not exists) the response is: 401 `{ errors: [{ message: "Unauthenticated" }]}`.
 * When the user is authenticated but does not have the required permissions the response is: 403 `{ errors: [{ message: "Unauthorized" }]}`.
 
 See [HTTP Status Codes Wiki][https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#4xx_Client_Error].
 
 Caveats:
 
-* Register the middleware providing `req.user.hasPermission` *before* registering the controller.
-* This feature supports only permission-based authentication. If you have *roles* then you should map them somehow to permissions during authentication.
+* Register the middleware providing `req.user.hasPermission` or `req.user.roles` *before* registering the controller.
