@@ -1,3 +1,17 @@
+# 2.0.0 (2017-06-28)
+
+# FIXES
+
+- Fixes in readme (typos, errors)
+
+
+## BREAKING CHANGES: Renames
+
+- `@AllowAnonymus` --> `@Public`
+- `getAllWhiteList` --> `getAllPublicRoutes`
+- `getWhiteList` --> `getPublicRoutes`
+
+
 # 1.1.0 (2017-06-28)
 
 ## FEATURES

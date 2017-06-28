@@ -26,7 +26,7 @@ Inspired on ASP.NET MVC it is possible to create Express based controllers and a
 import * as web from 'advanced-controllers';
 
 @web.Controller('/kitten')
-class KittenController extends BaseController {
+class KittenController extends AdvancedController {
 	// GET /kitten/all
 	@web.Get('/all')
 	getAll() { }
@@ -59,7 +59,7 @@ kittenCtrl.register(expressApp);
 
 * You have to actually *call* these functions. Good: `@Get()`, bad: `@Get`
 * Use `@Del` instead of `@Delete`
-* Don't forget to inherit from `BaseController` and call the `register()` function
+* Don't forget to inherit from `AdvancedController` and call the `register()` function
 * You forget to initialize `body-parser` for your Express app (so body won't be parsed)
 
 ### Registration details
@@ -82,11 +82,12 @@ Optional `settings` can have these props:
 - `namespace`: Prefix for the routes (E.g. `namespace1` --> `/namespace1/ctrl/action`)
 - `debugLogger`: Debug logger for registration
 - `errorLogger`: Any runtime errors (E.g. Errors / promise rejects in actions -- except `WebError` instances, see below at the `WebError` section)
-- `implicitAccess`: See below at Permissions
+- `implicitPublic`: See below at Permissions
 
 **Caveats:**
 
 - If you use `AdvancedController.register`, use it once and do not use the instances' `register` methods.
+- `AdvancedController.register` works on instantiated controllers.
 
 
 ## Data Binding
@@ -97,7 +98,7 @@ Tired of calling and validating `let myStuff = req.body.someVariable` in every f
 import * as web from 'advanced-controllers';
 
 @web.Controller('/kitten')
-class KittenController extends web.BaseController {
+class KittenController extends web.AdvancedController {
 	// GET /kittens/all?from=0[&cnt=25]
 	@web.Get('/all')
 	getKittens(
@@ -115,6 +116,7 @@ class KittenController extends web.BaseController {
 	@web.Post()
 	create2(@web.Body() kitten: Kitten)
 
+	// DELETE /kittens/delete/<id>
 	@web.Del('delete/:id')
 	deleteKitten(@web.Param('id') id: string) {}
 }
@@ -159,7 +161,7 @@ You can access the original `req` or `res` objects with similar syntax. Beware: 
 
 ```typescript
 @web.Controller('casual')
-class CasualController extends web.BaseController {
+class CasualController extends web.AdvancedController {
 	@web.Get('fancy-function')
 	fancyFunction(
 		web.Req() req: web.Request,
@@ -216,9 +218,9 @@ One extra functionality is the utilization of `express.use()`. You can specify m
 
 ```typescript
 @web.Controller('middleware')
-class MiddlewareTestController extends web.BaseController {
+class MiddlewareTestController extends web.AdvancedController {
 
-	middleware(req: web.Req, res: web.Res, next: Function) {
+	middleware(req: web.Request, res: web.Response, next: Function) {
 		console.log('Middleware called');
 		next();
 	}
@@ -258,15 +260,15 @@ An action will have a single permission. (You shouldn't use multiple decorators 
 
 - `@Permission(name?: string)`: The action requires the `name` permission (default value: `ctrl.action`)
 - `@Authorize()`: The action requires an authenticated user, i.e. `req.user` object must not be `undefined`
-- `@AllowAnonymus`: The action does not require
+- `@Public()`: The action does not require
 
 The permission check can be managed 2 ways.
 
 1. Default: custom permission check. Use a custom middleware before registering the controllers creating the following function on the request object: `req.user.hasPermission(permission: string): boolean | Promise<booleam>`. You can implement it however you'd like to
-2. Role based: Call the `AdvancedController.setRoles(roles: { name: string, permissions: string[] })` function to set the roles and their permissions. The following array should exists: `req.user.roles: string[]`
+2. Role based: Call the `AdvancedController.setRoles(roles: { name: string, permissions: string[] }[])` function to set the roles and their permissions. The following array should exists: `req.user.roles: string[]`
 
 ```typescript
-export interface RequestWithUser extends Req {
+export interface RequestWithUser extends Request {
 	user: {
 		// Default: custom authorization
 		hasPermission?(permission: string): boolean | Promise<boolean>;
@@ -281,12 +283,12 @@ You should create the `req.user.hasPermission` function OR the `req.user.roles` 
 
 ### A security enforcement
 
-If you don't use permissions (`@Permission` or `@Authorize` or `@AllowAnonymus`) then you can ignore this subsection.
+If you don't use permissions (`@Permission` or `@Authorize` or `@Public`) then you can ignore this subsection.
 
 If there are permission-related decorators in your app then you shall do at least one of the following:
 
-- Decorate public functions (or controllers) with the `@AllowAnonymus` decorator
-- Register the controllers with `implicitAccess`, e.g.: `AdvancedController.regiseterAll(app, { implicitAccess: true })`
+- Decorate public functions (or controllers) with the `@Public` decorator
+- Register the controllers with `implicitPublic`, e.g.: `AdvancedController.regiseterAll(app, { implicitPublic: true })`
 
 This is to prevent unintentional publication of some of your actions by forgetting the `@Permission` decorator.
 
@@ -298,7 +300,7 @@ You can use permissions like this:
 ```typescript
 // You can annotate this
 @web.Controller('perm')
-class PermissionController extends web.BaseController {
+class PermissionController extends web.AdvancedController {
 	// GET /perm/test1-a
 	// Needs permission: 'perm.test1-a'
 	@web.Permission()
@@ -320,7 +322,7 @@ class PermissionController extends web.BaseController {
 	// GET /perm/noPerm
 	// NO permission required
 	@web.Get('noperm')
-	@web.AllowAnonymus()
+	@web.Public()
 	noPerm() { return { done: true }; }
 
 	// GET /perm/authorized
@@ -336,7 +338,9 @@ class PermissionController extends web.BaseController {
 The following static functions help the management of authorization:
 
 - `AdvancedController.getAllPermissions(): string[]`: Aggregates the `getPermission()` results for all `AdvancedController` instances.
-- `AdvancedController.get/allWhiteList(): string[]`: Aggregates the `getWhiteList()` results for all `AdvancedController` instances. This can be used to create a whitelist in he authentication middleware (e.g. skip JWT checks on these URLs). Note that the results contain `/ctrl/action` style URLs but they do NOT contain the `namespace` if there is any (i.e. NOT `/namespace/ctrl/action`).
+- `AdvancedController.getAllPublicRoutes(): string[]`: Aggregates the `getPublicRoutes()` results for all `AdvancedController` instances. This can be used to create a whitelist in he authentication middleware (e.g. skip JWT checks on these URLs). Note that the results contain `/ctrl/action` style URLs but they do NOT contain the `namespace` if there is any (i.e. NOT `/namespace/ctrl/action`).
+
+Note that the static functions work on instantiated controllers only.
 
 
 ### Notes and Caveats
