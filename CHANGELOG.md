@@ -1,3 +1,11 @@
+# 1.1.0 (2017-06-28)
+
+## FEATURES
+
+- Less constraints on `Body`, `Query` and `Param`: each can be used without types
+- Minor undocumented change: `@Body()` won't validate `body` to be an Object
+
+
 # 1.0.0 (2017-06-28)
 
 ## FEATURES
