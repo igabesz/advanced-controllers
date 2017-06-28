@@ -12,7 +12,7 @@ const localBaseUrl = baseUrl + myNamespace + '/somectrl';
 
 @web.Controller('somectrl')
 class NamespaceController extends web.AdvancedController {
-	@web.AllowAnonymus()
+	@web.Public()
 	@web.Get()
 	test() { return { done: true }; }
 }

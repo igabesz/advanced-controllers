@@ -165,13 +165,13 @@ export abstract class AdvancedController {
 	}
 
 	/**
-	 * Returns the whitelist of all AdvancedController instances created so far.
+	 * Returns the public routes of all AdvancedController instances created so far.
 	 * NOTE that this does not contain namespaces.
 	 */
-	static getAllWhiteList(): string[] {
+	static getAllPublicRoutes(): string[] {
 		let results: string[] = [];
 		for (let ctrl of AdvancedController.controllers) {
-			for (let perm of ctrl.getWhiteList()) {
+			for (let perm of ctrl.getPublicRoutes()) {
 				if (results.indexOf(perm) === -1) {
 					results.push(perm);
 				}
@@ -279,10 +279,10 @@ export abstract class AdvancedController {
 	}
 
 	/**
-	 * Returns the whitelist of this controller.
+	 * Returns the public routes of this controller.
 	 * NOTE that this does not contain namespaces.
 	 */
-	getWhiteList(): string[] {
+	getPublicRoutes(): string[] {
 		let result: string[] = [];
 		let ctor = this.constructor as any;
 		let funcNames = getAllFuncs(this);

@@ -23,7 +23,7 @@ class Static2TestController extends web.AdvancedController {
 	post() { return 'post'; }
 
 	@web.Get('get-no-perm')
-	@web.AllowAnonymus()
+	@web.Public()
 	getNoPerm() { return 'get-no-perm'; }
 }
 
@@ -78,9 +78,9 @@ describe('Static AdvancedController', () => {
 		assert.notEqual(permissions.indexOf('static-3'), -1);
 	});
 
-	it('should have correct global whiteList', () => {
-		let whiteList = web.AdvancedController.getAllWhiteList();
-		assert.equal(whiteList.length, 1);
-		assert.equal(whiteList[0], '/static-2/get-no-perm');
+	it('should have correct global public routees', () => {
+		let publicRoutes = web.AdvancedController.getAllPublicRoutes();
+		assert.equal(publicRoutes.length, 1);
+		assert.equal(publicRoutes[0], '/static-2/get-no-perm');
 	});
 });

@@ -7,7 +7,7 @@ import { app, baseUrl } from './test-base';
 
 
 @web.Controller('some')
-@web.AllowAnonymus()
+@web.Public()
 class SomeController extends web.AdvancedController {
 	mwCalled = false;
 
@@ -16,7 +16,7 @@ class SomeController extends web.AdvancedController {
 }
 
 @web.Controller('some2')
-@web.AllowAnonymus()
+@web.Public()
 class SomeController2 extends web.AdvancedController {
 	nohttpmethod(
 		@web.Query('value', Number) value: number
@@ -24,7 +24,7 @@ class SomeController2 extends web.AdvancedController {
 }
 
 @web.Controller('some3')
-@web.AllowAnonymus()
+@web.Public()
 class SomeController3 extends web.AdvancedController {
 	dontRegisterMe = () => {};
 
@@ -33,7 +33,7 @@ class SomeController3 extends web.AdvancedController {
 }
 
 @web.Controller('some3')
-@web.AllowAnonymus()
+@web.Public()
 class SomeController3Again extends web.AdvancedController {
 	@web.Get('3')
 	get() {}
@@ -51,7 +51,7 @@ class DivergentPermissions extends web.AdvancedController {
 	@web.Get('/item')
 	get() {}
 
-	@web.AllowAnonymus()
+	@web.Public()
 	@web.Post('/item')
 	post() {}
 }

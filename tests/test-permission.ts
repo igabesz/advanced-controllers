@@ -37,7 +37,7 @@ class PermissionController extends web.AdvancedController {
 	testTwo() { return { done: true }; }
 
 	@web.Get('noperm')
-	@web.AllowAnonymus()
+	@web.Public()
 	noPerm() { return { done: true }; }
 
 	@web.Get('auth')
@@ -57,7 +57,7 @@ class PermissionController2 extends web.AdvancedController {
 	testTwo() { return { done: true }; }
 
 	@web.Get('public')
-	@web.AllowAnonymus()
+	@web.Public()
 	testThree() { return { done: true }; }
 }
 
@@ -173,10 +173,10 @@ describe('Permission', () => {
 	});
 
 	it('should have proper whitelists', () => {
-		let whiteList = ctrl.getWhiteList();
+		let whiteList = ctrl.getPublicRoutes();
 		assert.equal(whiteList.length, 1);
 		assert.equal(whiteList[0], '/perm/noperm');
-		whiteList = ctrl2.getWhiteList();
+		whiteList = ctrl2.getPublicRoutes();
 		assert.equal(whiteList.length, 1);
 		assert.equal(whiteList[0], '/perm-class/public');
 	});

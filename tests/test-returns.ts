@@ -10,7 +10,7 @@ var localBaseUrl = baseUrl + 'returns/';
 
 
 @web.Controller('returns')
-@web.AllowAnonymus()
+@web.Public()
 class ReturnsTestController extends web.AdvancedController {
 	@web.Get('get-promise')
 	getPromise(

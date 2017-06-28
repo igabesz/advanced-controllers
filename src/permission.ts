@@ -52,7 +52,7 @@ export function Authorize() {
 }
 
 /** Decorator for actions and classes. No authentication required */
-export function AllowAnonymus() {
+export function Public() {
 	return (target: any, funcName?: string) => {
 		if (funcName) permissionOnAction(false, target, funcName);
 		else permissionOnClass(false, target);

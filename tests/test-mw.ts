@@ -11,7 +11,7 @@ var localBaseUrl = baseUrl + 'middleware/';
 
 
 @web.Controller('middleware')
-@web.AllowAnonymus()
+@web.Public()
 class MiddlewareTestController extends web.AdvancedController {
 	middlewareCalled = false;
 
