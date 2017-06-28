@@ -47,7 +47,7 @@ class BindingTestController extends AdvancedController {
 	}
 
 	@Post('whole-body')
-	fullBody(@Body(Object) obj: any) {
+	fullBody(@Body() obj: any) {
 		this.message = obj.message;
 		this.items.push(obj.value);
 		return { last: _.last(this.items) };
@@ -65,7 +65,7 @@ class BindingTestController extends AdvancedController {
 	@Get('items-query2')
 	createItemFromQuery2(
 		@Query('value', Number) value: number,
-		@Query('message', String, true) message: string
+		@Query('message', true) message: string
 	) {
 		this.message = message;
 		this.items.push(value);

@@ -9,7 +9,7 @@ export type PropBinding = {
 	index: number;
 	from: ParamFrom;
 	name: string | symbol | undefined;
-	type: any;
+	type?: any;
 	opt?: boolean;
 };
 

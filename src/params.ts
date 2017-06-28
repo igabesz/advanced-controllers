@@ -3,6 +3,8 @@ import { Request, Response } from 'express';
 export { Request, Response } from 'express';
 
 
+export type ActionDecorator = (target: any, propertyKey: string | symbol, parameterIndex: number) => void;
+
 function addParam(prop: HttpActionProperty, name: string | symbol | undefined, index: number, from: ParamFrom, type: string, opt: boolean) {
 	prop.action = prop.action || {
 		url: undefined,
@@ -14,51 +16,61 @@ function addParam(prop: HttpActionProperty, name: string | symbol | undefined, i
 }
 
 /** Bind raw request object */
-export function Req() {
-	return (target: any, propertyKey: string | symbol, parameterIndex: number) => {
+export function Req(): ActionDecorator {
+	return (target, propertyKey, parameterIndex) => {
 		let prop = <HttpActionProperty>target[propertyKey];
 		addParam(prop, undefined, parameterIndex, 'req', 'req', false);
 	};
 }
 
 /** Bind raw response object */
-export function Res() {
-	return (target: any, propertyKey: string | symbol, parameterIndex: number) => {
+export function Res(): ActionDecorator {
+	return (target, propertyKey, parameterIndex) => {
 		let prop = <HttpActionProperty>target[propertyKey];
 		addParam(prop, undefined, parameterIndex, 'res', 'res', false);
 	};
 }
 
-function addParamBinding(name: string | undefined, optional: boolean | undefined, from: ParamFrom, type: any) {
-	return (target: any, propertyKey: string | symbol, parameterIndex: number) => {
+function addParamBinding(name: string | undefined, optional: boolean | undefined, from: ParamFrom, type: any): ActionDecorator {
+	return (target, propertyKey, parameterIndex) => {
 		let prop = <HttpActionProperty>target[propertyKey];
 		addParam(prop, name, parameterIndex, from, type, optional || false);
 	};
 }
 
+
 /** Bind the whole request.body object */
-export function Body(type?: any): (target: Object, propertyKey: string | symbol, parameterIndex: number) => void;
+export function Body(type?: any): ActionDecorator;
 /** Bind a member of the request.body object */
-export function Body(name: string, type: any, optional?: boolean):
-	(target: Object, propertyKey: string | symbol, parameterIndex: number) => void;
+export function Body(name: string, type?: any, optional?: boolean): ActionDecorator;
 /** Implementation */
-export function Body(nameOrType?: string | any, type?: any, optional?: boolean) {
+export function Body(nameOrType?: string | any, type?: any, optional?: boolean): ActionDecorator {
 	if (typeof nameOrType === 'string') {
 		return addParamBinding(nameOrType, optional, 'body', type);
 	}
-	return addParamBinding(undefined, false, 'full-body', nameOrType || Object);
+	return addParamBinding(undefined, false, 'full-body', nameOrType);
 }
 
 /** Bind an element from query */
-export function Query(name: string, type: any, optional?: boolean) { return addParamBinding(name, optional, 'query', type); }
-
+export function Query(name: string, optional?: boolean): ActionDecorator;
+export function Query(name: string, type: any, optional?: boolean): ActionDecorator;
+export function Query(name: string, typeOrOpt?: any, optional?: boolean): ActionDecorator {
+	if (typeOrOpt === undefined) {
+		return addParamBinding(name, false, 'query', undefined);
+	}
+	if (typeof typeOrOpt === 'boolean') {
+		return addParamBinding(name, typeOrOpt, 'query', undefined);
+	}
+	return addParamBinding(name, optional, 'query', typeOrOpt);
+}
 
 /** Bind an element from param (route) */
-export function Param(name: string, type: any) { return addParamBinding(name, false, 'param', type); }
-
+export function Param(name: string, type?: any): ActionDecorator {
+	return addParamBinding(name, false, 'param', type);
+}
 
 /** Internal helper */
-export function resolver(bind: PropBinding, validator: Validator): (params: any[], req: Request, res: Response) => any {
+export function resolver(bind: PropBinding, validator?: Validator): (params: any[], req: Request, res: Response) => any {
 	switch (bind.from) {
 		case 'req': return (params: any[], req: Request, res: Response) => { params[bind.index] = req; };
 		case 'res': return (params: any[], req: Request, res: Response) => { params[bind.index] = res; };
@@ -74,22 +86,26 @@ export function resolver(bind: PropBinding, validator: Validator): (params: any[
 					params[bind.index] = undefined;
 					return;
 				}
-				let parsed = validator.parse(value);
-				if (!validator.check(parsed)) throw new Error(`Invalid ${bind.from} value: ${bind.name} should be a ${bind.type}`);
-				params[bind.index] = parsed;
+				if (validator) {
+					value = validator.parse(value);
+					if (!validator.check(value)) throw new Error(`Invalid ${bind.from} value: ${bind.name} should be a ${bind.type}`);
+				}
+				params[bind.index] = value;
 			};
 
 		// Body: we MUST have body-parser here
 		case 'body': return (params: any[], req: Request, res: Response) => {
 			// It MUST be parsed
-			let parsed = req.body[<string|symbol>bind.name];
-			if (parsed === undefined) {
+			let value = req.body[<string|symbol>bind.name];
+			if (value === undefined) {
 				if (!bind.opt) throw new WebError(`Missing property: ${bind.name}`, 400);
 				params[bind.index] = undefined;
 				return;
 			}
-			if (!validator.check(parsed)) throw new Error(`Invalid value: ${bind.name} should be a ${bind.type}`);
-			params[bind.index] = parsed;
+			if (validator) {
+				if (!validator.check(value)) throw new Error(`Invalid value: ${bind.name} should be a ${bind.type}`);
+			}
+			params[bind.index] = value;
 		};
 
 		// Full-body: we MUST have body-parser here
@@ -98,7 +114,9 @@ export function resolver(bind: PropBinding, validator: Validator): (params: any[
 			if (req.body === undefined) {
 				throw new WebError(`Empty Body`, 400);
 			}
-			if (!validator.check(req.body)) throw new Error(`Invalid value: Body should be a ${bind.type}`);
+			if (validator) {
+				if (!validator.check(req.body)) throw new Error(`Invalid value: Body should be a ${bind.type}`);
+			}
 			params[bind.index] = req.body;
 		};
 	}

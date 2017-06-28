@@ -1,6 +1,6 @@
 import * as express from 'express';
 import * as _ from 'lodash';
-import { Request, Response, HttpActionProperty, RequestWithUser, WebError, getAllFuncs } from './types';
+import { Request, Response, HttpActionProperty, RequestWithUser, WebError, getAllFuncs, Validator } from './types';
 import { validators } from './validator';
 import { resolver } from './params';
 import { permCheckGenerator, PermCheckResult, setRoleMap } from './permission';
@@ -50,10 +50,13 @@ function registerControllerFunction(
 	let binders: ((params: any[], req: Request, res: Response) => any)[] = [];
 	let autoClose = true;
 	for (let bind of action.params) {
-		let validator = validators.filter((item) => item.type === bind.type)[0];
-		if (!validator) throw new Error(`No validator for type: ${bind.type}`);
+		let validator: Validator|undefined = undefined;
+		if (bind.type) {
+			validator = validators.filter((item) => item.type === bind.type)[0];
+			if (!validator) throw new Error(`No validator for type: ${bind.type}`);
+		}
 		binders.push(resolver(bind, validator));
-		if (validator.disableAutoClose) autoClose = false;
+		if (validator && validator.disableAutoClose) autoClose = false;
 	}
 
 	// Creating permission checker
