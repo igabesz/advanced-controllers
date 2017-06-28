@@ -45,6 +45,16 @@ class ImplicitAccessCtrl extends web.AdvancedController {
 	get() { return { done: true }; }
 }
 
+@web.Controller('divergent-permissions')
+class DivergentPermissions extends web.AdvancedController {
+	@web.Permission('p1')
+	@web.Get('/item')
+	get() {}
+
+	@web.AllowAnonymus()
+	@web.Post('/item')
+	post() {}
+}
 
 describe('Various Error Checks', () => {
 	let implicitCtrl: ImplicitAccessCtrl;
@@ -103,6 +113,13 @@ describe('Various Error Checks', () => {
 			assert.deepEqual(data, { done: true });
 			done();
 		});
+	});
+
+	it('should disallow divergent permissions', () => {
+		let ctrl = new DivergentPermissions();
+		assert.throws(() => {
+			ctrl.register(app);
+		}, err => err.message.indexOf('Divergent permissions') !== -1);
 	});
 
 });

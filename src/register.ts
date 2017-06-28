@@ -58,7 +58,6 @@ function registerControllerFunction(
 
 	// Creating permission checker
 	let permCheck = permCheckGenerator(thisBind, actionFunc);
-	// TODO: Check permissions
 
 	// Creating actionProcessor
 	let argLength = action.params.length;
@@ -209,10 +208,10 @@ export abstract class AdvancedController {
 		for (let name of funcNames) {
 			let actionFunc = (this as any)[name] as HttpActionProperty;
 			if (!actionFunc || !actionFunc.action) continue;
+
 			if (actionFunc.action.permission !== undefined) {
 				AdvancedController.anyPermissionsCreated = true;
 			}
-			// TODO Prevent divergent permissions
 		}
 	}
 
@@ -222,20 +221,38 @@ export abstract class AdvancedController {
 		if (!ctor || !ctor.__controller || !ctor.__controller.name) {
 			throw new Error('Must use @controller decoration on controller!');
 		}
-		let debugLogger = settings ? settings.debugLogger : undefined;
-		let errorLogger = settings ? settings.errorLogger : undefined;
-		let namespace = settings ? settings.namespace : undefined;
 		let implicitAccess = settings ? settings.implicitAccess : undefined;
 		let funcNames = getAllFuncs(this);
+		let actionFuncs: HttpActionProperty[] = [];
+		let urlPermissionMap = new Map<string, string | boolean | undefined>();
 		for (let name of funcNames) {
 			let actionFunc = ctor.prototype[name] as HttpActionProperty;
 			if (!actionFunc) continue;
-			if (actionFunc.action) {
-				if (actionFunc.action.permission === undefined && AdvancedController.anyPermissionsCreated && !implicitAccess) {
-					throw new Error('Must specify `implicitAccess` in settings!');
-				}
-				registerControllerFunction(this, app, actionFunc, debugLogger, errorLogger, namespace);
+			if (!actionFunc.action) continue;
+			// Prevent unintentional implicit accesses
+			let permission = actionFunc.action.permission;
+			if (permission === undefined && AdvancedController.anyPermissionsCreated && !implicitAccess) {
+				throw new Error('Must specify `implicitAccess` in settings!');
 			}
+			// Prevent divergent permissions
+			let url = actionFunc.action.url;
+			if (urlPermissionMap.has(url)) {
+				let existingPermission = urlPermissionMap.get(url);
+				if (existingPermission !== permission) {
+					throw new Error(`Divergent permissions for ${url}: ${existingPermission} !== ${permission}. (Probably at different HTTP methods.)`);
+				}
+			} else {
+				urlPermissionMap.set(url, permission);
+			}
+			// Cool
+			actionFuncs.push(actionFunc);
+		}
+		// Ok, everything is cool, register all
+		let debugLogger = settings ? settings.debugLogger : undefined;
+		let errorLogger = settings ? settings.errorLogger : undefined;
+		let namespace = settings ? settings.namespace : undefined;
+		for (let actionFunc of actionFuncs) {
+			registerControllerFunction(this, app, actionFunc, debugLogger, errorLogger, namespace);
 		}
 	}
 
