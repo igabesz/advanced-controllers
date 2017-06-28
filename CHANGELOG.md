@@ -1,6 +1,27 @@
+# 1.0.0 (2017-06-28)
+
+## FEATURES
+
+- Introduced some static messages on `AdvancedController` affecting every existing controller instances
+- Role-based authentication + authorization
+- `Param` decorator for routing params (e.g. `my-ctrl/action/:id`)
+- `AllowAnonymus` and `Authorize` decorators
+- WhiteLists
+- Some checks to prevent various unintentional cases (e.g. 2 controllers using the same name)
+
+## BREAKING CHANGES
+
+- Rename all decorators: `camelCase` --> `PascalCase` (e.g. `get` --> `Get`)
+- Type rename: `Req` --> `Request`, `Res` --> `Response`
+- Rename `BaseController` --> `AdvancedController`
+- Rename at `AdvancedController` instance: `getAllPermissions` --> `getPermissions`
+- Default permission goes from `<ctrl>:<action>` to `<ctrl>.<action>`
+- TS build: Requires full ES2015 lib (specifically: `ES2015.collections`, even more specifically: `Map`)
+
+
 # 0.4.0 (2017-05-05)
 
-# FEATURES
+## FEATURES
 
 - Permission support on classes
 

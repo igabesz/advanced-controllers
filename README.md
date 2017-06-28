@@ -3,24 +3,26 @@
 Features:
 
 * MVC-like controllers for Express
-* Easy configuration through `@decorators`
-* Data binding for request data (query, body)
+* Easy configuration through `@Decorators`
+* Data binding for request data (query, body, params)
 * Return value handling (data, exception, Promise)
-* Authorization support
+* Authorization support (custom, or roles and permissions)
 * Written in TypeScript, compiled to ES5
 
 See the tests for examples.
+
+**NOTE: There were breaking changes in 1.0.0**
+See the [Change log](CHANGELOG.md) for breaking changes.
 
 
 ## Not documented yet
 
 We DO HAVE these functions but it takes much time to make documentations, so I'll do it later. Create an issue or check the source if interested.
 
-* `body` annotation checking the whole `request.body` object
+* **Every 1.0.0 new features**
+* `Body` annotation checking the whole `request.body` object
 * Adding custom validators
 * Usage with `async` action functions
-
-See the [Change log](CHANGELOG.md) for breaking changes.
 
 
 ## MVC Features
@@ -30,22 +32,22 @@ Inspired on ASP.NET MVC it is possible to create Express based controllers and a
 ```
 import * as web from 'advanced-controllers';
 
-@controller('/kitten')
+@web.Controller('/kitten')
 class KittenController extends BaseController {
 	// GET /kitten/all
-	@web.get('/all')
+	@web.Get('/all')
 	getAll() { }
 
 	// GET /kitten/details
-	@web.get()
+	@web.Get()
 	details() {}
 
 	// POST /kitten/create
-	@web.post()
+	@web.Post()
 	create() {}
 
 	// DELETE /kitten/delete
-	@web.del('delete')
+	@web.Del('delete')
 	deleteKitten() {}
 }
 
@@ -55,15 +57,15 @@ kittenCtrl.register(expressApp);
 
 **Features:**
 
-* Use the `@controller('name')` decorator on the controller class
-* Use the following functions: `get`, `post`, `put`, `head`, `options`, `del`
+* Use the `@Controller('name')` decorator on the controller class
+* Use the following functions: `Get`, `Post`, `Put`, `Head`, `Options`, `Del`
 * The beginning `/` character in the names is optional
 * The method names can be omitted. In this case the function name is used
 
 **Caveats:**
 
-* You have to actually *call* these functions. Good: `@get()`, bad: `@get`
-* Use `@del` instead of `@delete`
+* You have to actually *call* these functions. Good: `@Get()`, bad: `@Get`
+* Use `@Del` instead of `@Delete`
 * Don't forget to inherit from `BaseController` and call the `register()` function
 * You forget to initialize `body-parser` for your Express app (so body won't be parsed)
 
@@ -72,8 +74,7 @@ kittenCtrl.register(expressApp);
 ```
 kittenCtrl.register(
 	expressApp, // Express app
-	() => {},   // [OPTIONAL] Logger function for registration and runtime errors
-	'animals',  // [OPTIONAL] Namespace for ctrl, e.g. 'GET /animals/kitten/all'
+	{}, // Optional settings
 );
 ```
 
@@ -85,22 +86,22 @@ Tired of calling and validating `let myStuff = req.body.someVariable` in every f
 ```
 import * as web from 'advanced-controllers';
 
-@web.controller('/kitten')
+@web.Controller('/kitten')
 class KittenController extends web.BaseController {
 	// GET /kittens/all?from=0[&cnt=25]
-	@web.get('/all')
+	@web.Get('/all')
 	getKittens(
-		@web.query('from', Number) from: number,
-		@web.query('cnt', Number, true) cnt: number
+		@web.Query('from', Number) from: number,
+		@web.Query('cnt', Number, true) cnt: number
 	) { }
 
 	// POST /kittens/create, body: { kitten: {} }
-	@web.post()
+	@web.Post()
 	create(
-		@web.body('kitten', Object) kitten: Kitten
+		@web.Body('kitten', Object) kitten: Kitten
 	) {}
 
-	@web.del('delete')
+	@web.Del('delete')
 	deleteKitten() {}
 }
 ```
@@ -127,12 +128,12 @@ class KittenController extends web.BaseController {
 You can access the original `req` or `res` objects with similar syntax. Beware: if you ask the `res` object then we won't handle the return values for you. (Return values are discussed soon.)
 
 ```
-@web.controller('casual')
+@web.Controller('casual')
 class CasualController extends web.BaseController {
-	@get('fancy-function')
+	@web.Get('fancy-function')
 	fancyFunction(
-		web.req() req: web.Req,
-		web.res() res: web.Res
+		web.Req() req: web.Request,
+		web.Res() res: web.Response
 	) {}
 }
 ```
@@ -140,7 +141,7 @@ class CasualController extends web.BaseController {
 **Caveats:**
 
 * If you use `res` then you have to manually end the request, e.g. `res.send('')` (see next section)
-* Parentheses... Good: `@req()`, bad: `@req`
+* Parentheses... Good: `@Req()`, bad: `@Req`
 
 
 ## Return values
@@ -184,7 +185,7 @@ Customization by overwriting `WebError.requestErrorTransformer`.
 One extra functionality is the utilization of `express.use()`. You can specify middleware calls over the actions.
 
 ```
-@web.controller('middleware')
+@web.Controller('middleware')
 class MiddlewareTestController extends web.BaseController {
 
 	middleware(req: web.Req, res: web.Res, next: Function) {
@@ -192,12 +193,12 @@ class MiddlewareTestController extends web.BaseController {
 		next();
 	}
 
-	@web.get('do-stuff')
-	@web.middleware('middleware')
+	@web.Get('do-stuff')
+	@web.Middleware('middleware')
 	doStuff() {}
 
-	@web.get('do-more-stuff')
-	@web.middleware(otherMiddlewareFunction)
+	@web.Get('do-more-stuff')
+	@web.Middleware(otherMiddlewareFunction)
 	doMoreStuff() {}
 }
 ```
@@ -234,29 +235,30 @@ export interface RequestWithUser extends Req {
 You can use permissions like this:
 
 ```
-@web.controller('perm')
+@web.Controller('perm')
 class PermissionController extends web.BaseController {
 	// GET /perm/test1-a
 	// Needs permission: 'perm:test1-a'
-	@web.permission()
-	@web.get('test1-a')
+	@web.Permission()
+	@web.Get('test1-a')
 	testOneA() { return { done: true }; }
 
 	// GET /perm/testOneB
 	// Needs permission: 'perm:TestOneB'
-	@web.permission()
-	@web.get()
+	@web.Permission()
+	@web.Get()
 	testOneB() { return { done: true }; }
 
 	// POST /perm/test2
 	// Needs permission: 'perm:test-two'
-	@web.permission('perm:test-two')
-	@web.post('test2')
+	@web.Permission('perm:test-two')
+	@web.Post('test2')
 	testTwo() { return { done: true }; }
 
 	// GET /perm/noPerm
 	// NO permission required
-	@web.get('noperm')
+	@web.Get('noperm')
+	@web.AllowAnonymus()
 	noPerm() { return { done: true }; }
 }
 ```
