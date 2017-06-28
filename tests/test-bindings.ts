@@ -46,6 +46,13 @@ class BindingTestController extends AdvancedController {
 		return { last: _.last(this.items) };
 	}
 
+	@Post('whole-body')
+	fullBody(@Body(Object) obj: any) {
+		this.message = obj.message;
+		this.items.push(obj.value);
+		return { last: _.last(this.items) };
+	}
+
 	@Get('items-query')
 	createItemFromQuery(
 		@Query('items', Array) items: number[]
@@ -143,6 +150,20 @@ describe('BindingTestController', () => {
 		}, (err, res, body) => {
 			generalAssert(err, res);
 			assert.deepEqual(body.last, 14);
+			assert.strictEqual(mainController.message, message);
+			done();
+		});
+	});
+
+	it('should parse whole body', done => {
+		let message = 'whole-body-message';
+		let value = 15;
+		request.post({
+			url: localBaseUrl + 'whole-body',
+			json: { value, message }
+		}, (err, res, body) => {
+			generalAssert(err, res);
+			assert.deepEqual(body.last, value);
 			assert.strictEqual(mainController.message, message);
 			done();
 		});
