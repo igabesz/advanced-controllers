@@ -2,7 +2,7 @@
   "name": "advanced-controllers",
   "version": "1.1.0",
   "description": "",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "keywords": [
     "ES6",
     "ES7",
@@ -18,9 +18,9 @@
   "directories": {
     "test": "tests"
   },
-  "typings": "lib/index.d.ts",
+  "typings": "dist/index.d.ts",
   "typescript": {
-    "definition": "lib/index.d.ts"
+    "definition": "dist/index.d.ts"
   },
   "dependencies": {
     "lodash": "^4.6.1"

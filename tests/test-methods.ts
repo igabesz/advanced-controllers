@@ -3,7 +3,7 @@ import * as mocha from 'mocha';
 import * as assert from 'assert';
 import * as request from 'request';
 
-import { Controller, Get, Post, Put, Del, AdvancedController } from '../lib/index';
+import { Controller, Get, Post, Put, Del, AdvancedController } from '../dist/index';
 import { app, baseUrl } from './test-base';
 
 

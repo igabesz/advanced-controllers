@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as assert from 'assert';
 import * as request from 'request';
 
-import { Controller, Get, Post, Req, Res, Request, Response, Body, Query, Param, AdvancedController } from '../lib/index';
+import { Controller, Get, Post, Req, Res, Request, Response, Body, Query, Param, AdvancedController } from '../dist/index';
 import { app, baseUrl } from './test-base';
 
 

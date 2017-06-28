@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as assert from 'assert';
 import * as request from 'request';
 
-import * as web from '../lib/index';
+import * as web from '../dist/index';
 import { app, baseUrl } from './test-base';
 
 declare var Promise;
