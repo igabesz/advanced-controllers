@@ -65,9 +65,9 @@ export type PermCheckResult =
 	{ success: false, reason: 'Unauthenticated' | 'Unauthorized' };
 
 export module PermCheckResult {
-	export function ok() { return { success: true }; }
-	export function unauthorized() { return { success: false, reason: 'Unauthorized' }; }
-	export function unauthenticated() { return { success: false, reason: 'Unauthenticated' }; }
+	export function ok(): PermCheckResult { return { success: true }; }
+	export function unauthorized(): PermCheckResult { return { success: false, reason: 'Unauthorized' }; }
+	export function unauthenticated(): PermCheckResult { return { success: false, reason: 'Unauthenticated' }; }
 }
 
 
@@ -102,19 +102,16 @@ export function permCheckGenerator(target: any, actionFunc: HttpActionProperty):
 				if (!rolePermissions) return PermCheckResult.unauthorized();
 				if (rolePermissions.indexOf(<string>permName) !== -1) return PermCheckResult.ok();
 			}
-			return { success: false, reason: 'Unauthorized' };
+			return PermCheckResult.unauthorized();
 		}
 		// 3rd: Check user.hasPermission
 		if (!req.user.hasPermission) {
-			return { success: false, reason: 'Unauthorized' };
+			return PermCheckResult.unauthorized();
 		}
 		let hasPermission = req.user.hasPermission(<string>permName);
 		if (hasPermission instanceof Promise) {
 			hasPermission = await hasPermission;
 		}
-		return {
-			success: hasPermission,
-			reason: hasPermission ? undefined : 'Unauthorized',
-		};
+		return hasPermission ? PermCheckResult.ok() : PermCheckResult.unauthorized();
 	};
 }

@@ -28,7 +28,7 @@ function registerControllerFunction(
 ) {
 	let action = actionFunc.action;
 	if (!action) { return false; }
-	if (!action.method || !action.url) {
+	if (!action.method || action.url === undefined) {
 		throw new Error('Action has no method: ' + actionFunc);
 	}
 
@@ -241,7 +241,8 @@ export abstract class AdvancedController {
 			let url = actionFunc.action.url;
 			if (urlPermissionMap.has(url)) {
 				let existingPermission = urlPermissionMap.get(url);
-				if (existingPermission !== permission) {
+				// Error if one is public and the other is not
+				if ((!existingPermission && permission) || (existingPermission && !permission)) {
 					throw new Error(`Divergent permissions for ${url}: ${existingPermission} !== ${permission}. (Probably at different HTTP methods.)`);
 				}
 			} else {

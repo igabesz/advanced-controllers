@@ -14,7 +14,8 @@ export function Controller(controllerName: string) {
 			let action = target.prototype[actionName] as HttpActionProperty;
 			if (action && action.action) {
 				if (action.action.permission === '') {
-					action.action.permission = `${controllerName}.${action.action.url}`.replace(/\//g, '');
+					let permName = action.action.url ? `${controllerName}.${action.action.url}` : `${controllerName}.${actionName}`;
+					action.action.permission = permName.replace(/\//g, '');
 				}
 			}
 		}
@@ -22,8 +23,12 @@ export function Controller(controllerName: string) {
 }
 
 function setHttpAction(prop: HttpActionProperty, method: string, url: string) {
-	if (url[0] !== '/')
+	if (!url) {
+		url = '';
+	}
+	else if (url[0] !== '/') {
 		url = '/' + url;
+	}
 
 	prop.action = prop.action || <any>{};
 	prop.action.url = url;
@@ -34,7 +39,8 @@ function setHttpAction(prop: HttpActionProperty, method: string, url: string) {
 
 function routeDeclaration(method: string, name?: string) {
 	return (target: any, key: string, value?: PropertyDescriptor) => {
-		setHttpAction(target[key], method, name || key);
+		let url = name === undefined ? key : name;
+		setHttpAction(target[key], method, url);
 	};
 }
 

@@ -301,6 +301,13 @@ You can use permissions like this:
 // You can annotate this
 @web.Controller('perm')
 class PermissionController extends web.AdvancedController {
+
+	// GET /perm
+	// Needs permission: 'perm.testEmpty'
+	@web.Permission()
+	@web.Get('')
+	testEmpty { return { done: true }; }
+
 	// GET /perm/test1-a
 	// Needs permission: 'perm.test1-a'
 	@web.Permission()
@@ -358,3 +365,4 @@ See [HTTP Status Codes Wiki][https://en.wikipedia.org/wiki/List_of_HTTP_status_c
 Caveats:
 
 * Register the middleware providing `req.user.hasPermission` or `req.user.roles` *before* registering the controller.
+* On empty action name: the permission will have the name of the function instead of the name of the action (which is `''`)

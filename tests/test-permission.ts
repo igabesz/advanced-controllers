@@ -24,6 +24,11 @@ const authenticator = new class {
 
 @web.Controller('perm')
 class PermissionController extends web.AdvancedController {
+
+	@web.Permission()
+	@web.Get('')
+	testEmpty() { return { done: true }; }
+
 	@web.Permission()
 	@web.Get('test1-a')
 	testOneA() { return { done: true }; }
@@ -65,6 +70,7 @@ class PermissionController2 extends web.AdvancedController {
 let ctrl: PermissionController;
 let ctrl2: PermissionController2;
 let permissionsShouldBe = [
+	'perm.testEmpty',
 	'perm.test1-a',
 	'perm.testOneB',
 	'perm.test-two',
@@ -113,6 +119,18 @@ describe('Permission', () => {
 		authenticator.enabled = true;
 		authenticator.permissions.push('perm.test-two');
 		request.post(`${localBaseUrl}/test2`, {}, (err, res, body) => {
+			let data = JSON.parse(body);
+			assert(!err);
+			assert.equal(res.statusCode, 200);
+			assert.deepEqual(data, { done: true });
+			done();
+		});
+	});
+
+	it('should handle permissions of empty actions well', done => {
+		authenticator.enabled = true;
+		authenticator.permissions.push('perm.testEmpty');
+		request.get(`${localBaseUrl}`, (err, res, body) => {
 			let data = JSON.parse(body);
 			assert(!err);
 			assert.equal(res.statusCode, 200);

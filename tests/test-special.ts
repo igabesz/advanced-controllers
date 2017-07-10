@@ -56,6 +56,18 @@ class DivergentPermissions extends web.AdvancedController {
 	post() {}
 }
 
+@web.Controller('not-divergent-permissions')
+class NotDivergentPermissions extends web.AdvancedController {
+	@web.Permission('p1')
+	@web.Get('')
+	get() {}
+
+	@web.Permission('p1')
+	@web.Post('')
+	post() {}
+}
+
+
 describe('Various Error Checks', () => {
 	let implicitCtrl: ImplicitAccessCtrl;
 
@@ -120,6 +132,11 @@ describe('Various Error Checks', () => {
 		assert.throws(() => {
 			ctrl.register(app);
 		}, err => err.message.indexOf('Divergent permissions') !== -1);
+	});
+
+	it('should not throw on different but not Public permissions on the same route (different methods)', () => {
+		let ctrl = new NotDivergentPermissions();
+		ctrl.register(app);
 	});
 
 });

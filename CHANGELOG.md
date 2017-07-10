@@ -1,3 +1,14 @@
+# 2.1.0 (2017-07-10)
+
+- Enhancements
+
+## CHANGES (undocumented breaking)
+
+- `@Get('')` and other methods will register to `/ctrlname` instead of `/ctrlname/`
+- Permission for `Get('')` will be `ctrlName.funcName`
+- Using different permissions on same route + different method is available. Using any permission and no permission (Public) on the same route + different method is still forbidden.
+
+
 # 2.0.0 (2017-06-28)
 
 # FIXES
