@@ -30,6 +30,19 @@ class PermissionController extends web.AdvancedController {
 	testEmpty() { return { done: true }; }
 
 	@web.Permission()
+	@web.Post('/')
+	testEmptyPost() { return { done: true }; }
+
+
+	@web.Permission()
+	@web.Get(':param1')
+	testEmptyWithParam1() {}
+
+	@web.Permission()
+	@web.Get('/:param2')
+	testEmptyWithParam2() {}
+
+	@web.Permission()
 	@web.Get('test1-a')
 	testOneA() { return { done: true }; }
 
@@ -71,6 +84,9 @@ let ctrl: PermissionController;
 let ctrl2: PermissionController2;
 let permissionsShouldBe = [
 	'perm.testEmpty',
+	'perm.testEmptyPost',
+	'perm.testEmptyWithParam1',
+	'perm.testEmptyWithParam2',
 	'perm.test1-a',
 	'perm.testOneB',
 	'perm.test-two',

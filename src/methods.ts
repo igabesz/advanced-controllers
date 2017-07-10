@@ -12,11 +12,15 @@ export function Controller(controllerName: string) {
 		// Handle missing permissions
 		for (let actionName of getAllFuncs(target.prototype)) {
 			let action = target.prototype[actionName] as HttpActionProperty;
-			if (action && action.action) {
-				if (action.action.permission === '') {
-					let permName = action.action.url ? `${controllerName}.${action.action.url}` : `${controllerName}.${actionName}`;
-					action.action.permission = permName.replace(/\//g, '');
+			if (action && action.action && action.action.permission === '') {
+				// Normal case
+				let actionUrl = action.action.url;
+				let permName = `${controllerName}.${actionUrl}`;
+				// Needs special care
+				if (actionUrl === '' || actionUrl === '/' || actionUrl.startsWith('/:')) {
+					permName = `${controllerName}.${actionName}`;
 				}
+				action.action.permission = permName.replace(/\//g, '');
 			}
 		}
 	};
