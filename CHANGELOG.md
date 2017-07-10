@@ -1,6 +1,11 @@
-# 2.1.0 (2017-07-10)
+# 2.1.1 (2017-07-10)
 
-- Enhancements
+## FIXES
+
+- Permission name generation for actions with routes `/`, `/:*` would also generate `ctrlname:funcname`
+
+
+# 2.1.0 (2017-07-10)
 
 ## CHANGES (undocumented breaking)
 
