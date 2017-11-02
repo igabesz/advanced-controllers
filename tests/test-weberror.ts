@@ -13,6 +13,11 @@ var localBaseUrl = baseUrl + 'error/';
 @web.Public()
 class ErrorController extends web.AdvancedController {
 
+	@web.Get('regular')
+	regularError(@web.Query('msg') msg: string) {
+		throw new Error(msg);
+	}
+
 	@web.Get()
 	test1() {
 		throw new web.WebError('ErrorText1');
@@ -33,10 +38,29 @@ class ErrorController extends web.AdvancedController {
 
 describe('WebError checks', () => {
 	let ctrl: ErrorController;
+	let errorMessage: string;
+	let errorInstance: any;
 
 	before(() => {
 		ctrl = new ErrorController();
-		ctrl.register(app);
+		ctrl.register(app, {
+			errorLogger: (message, err) => {
+				errorMessage = message;
+				errorInstance = err;
+			},
+		});
+	});
+
+	it('should handle regular internal errors properly', done => {
+		let msg = 'Regular Error';
+		errorMessage = '';
+		errorInstance = undefined;
+		request(localBaseUrl + 'regular?msg=' + msg, (err, response, body) => {
+			assert.equal(response.statusCode, 500);
+			assert.equal(errorMessage, 'Request failed: ' + msg);
+			assert.ok(errorInstance instanceof Error);
+			done();
+		});
 	});
 
 	it('should return error text', done => {
