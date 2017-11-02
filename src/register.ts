@@ -22,8 +22,8 @@ function registerControllerFunction(
 	thisBind: any,
 	app: express.Express,
 	actionFunc: HttpActionProperty,
-	debugLogger?: Function,
-	errorLogger?: Function,
+	debugLogger?: (message: string, meta?: any) => void,
+	errorLogger?: (message: string, meta?: any) => void,
 	namespace?: string
 ) {
 	let action = actionFunc.action;
@@ -82,7 +82,7 @@ function generateHandler({
 }: {
 	binders: ((params: any[], req: Request, res: Response) => any)[],
 	argLength: number,
-	errorLogger?: Function,
+	errorLogger?: (message: string, meta?: any) => void,
 	autoClose: boolean,
 	thisBind: any,
 	actionFunc: HttpActionProperty,
@@ -116,7 +116,8 @@ function generateHandler({
 		}
 		// Internal error
 		catch (ex) {
-			(!ex.statusCode) && errorLogger && errorLogger('error', 'Something broke', { ex: ex, message: ex.message, stack: ex.stack });
+			let message = ex.message || '<no message>';
+			(!ex.statusCode) && errorLogger && errorLogger(`Request failed: ${message}`, ex);
 			handleError(ex, res);
 		}
 	};
