@@ -42,8 +42,10 @@ function registerControllerFunction(
 
 	// Applying middleware
 	for (let mwFunc of action.middlewares) {
-		debugLogger && debugLogger(`Registering ${action.method} ${url} *MW*`);
-		app.use(url, mwFunc.bind(thisBind));
+		debugLogger && debugLogger(`Registering ${action.method} ${url} <MW> ${mwFunc.name}`);
+		mwFunc = mwFunc.bind(thisBind);
+		// Middleware must applied for this method only
+		app.use(url, (req, res, done) => (req.method === action.method) ? mwFunc(req, res, done) : done());
 	}
 
 	// Creating parser functions

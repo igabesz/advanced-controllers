@@ -26,8 +26,18 @@ class MiddlewareTestController extends web.AdvancedController {
 	}
 
 	@web.Get('implicit-middleware')
-	@web.Middleware('middleware')
 	implicitMiddleware() {
+		return this.middlewareCalled;
+	}
+
+	@web.Post('implicit-middleware')
+	@web.Middleware('middleware')
+	implicitMiddlewarePost() {
+		return this.middlewareCalled;
+	}
+
+	@web.Put('implicit-middleware')
+	implicitMiddlewarePut() {
 		return this.middlewareCalled;
 	}
 
@@ -46,7 +56,7 @@ class MiddlewareTestController extends web.AdvancedController {
 
 
 describe('MiddlewareTestController', () => {
-	let ctrl: any;
+	let ctrl: MiddlewareTestController;
 	let assertAndParse = (err, res, body) => {
 		assert(!err);
 		assert.equal(res.statusCode, 200);
@@ -71,10 +81,22 @@ describe('MiddlewareTestController', () => {
 	});
 
 	it('should call the middleware implicitely', (done) => {
-		request(localBaseUrl + 'implicit-middleware', (err, res, body) => {
+		request.post(localBaseUrl + 'implicit-middleware', (err, res, body) => {
 			let data = assertAndParse(err, res, body);
 			assert.equal(data, true);
 			done();
+		});
+	});
+
+	it('should not call the middleware with different method', (done) => {
+		request.get(localBaseUrl + 'implicit-middleware', (err, res, body) => {
+			let data = assertAndParse(err, res, body);
+			assert.equal(data, false, 'GET method');
+			request.put(localBaseUrl + 'implicit-middleware', (err2, res2, body2) => {
+				let data2 = assertAndParse(err2, res2, body2);
+				assert.equal(data2, false, 'PUT method');
+			done();
+			});
 		});
 	});
 
