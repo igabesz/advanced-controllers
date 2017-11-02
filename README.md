@@ -133,7 +133,7 @@ export function Body(name: string, type?: any, optional?: boolean): ActionDecora
 export function Query(name: string, optional?: boolean): ActionDecorator;
 // Query with type
 export function Query(name: string, type: any, optional?: boolean): ActionDecorator;
-// Param woth or without type
+// Param with or without type
 export function Param(name: string, type?: any): ActionDecorator;
 ```
 
@@ -164,8 +164,8 @@ You can access the original `req` or `res` objects with similar syntax. Beware: 
 class CasualController extends web.AdvancedController {
 	@web.Get('fancy-function')
 	fancyFunction(
-		web.Req() req: web.Request,
-		web.Res() res: web.Response
+		@web.Req() req: web.Request,
+		@web.Res() res: web.Response
 	) {}
 }
 ```
@@ -180,23 +180,24 @@ class CasualController extends web.AdvancedController {
 
 By default the response is closed automatically with a status code and sometimes with data
 
+* Async actions / Promise results are awaited first
+* When the action executes correctly, depending on the *return value*
+  * On `undefined`: 200
+  * On `string` types: 200 + result as body (raw string)
+  * Otherwise: 200 + value `JSON.strigify`-ed
 * Missing bound parameter: 400
 * When the action throws an error:
   * If the error has a `statusCode` property ending with `statusCode`
+	* You should use the `WebError` class for this
   * Otherwise 500
   * If the error has a `json` field then it will be sent as JSON
   * If the error has a `text` field then it will be sent as plain text
   * Default error parsing error sends back `{ "errors": [ { "message": "some-stuff" }]}`
-* When the action executes correctly, depending on the return value
-  * On `undefined`: 200
-  * On non-Promise value: 200 + value `JSON.strigify`-ed
-  * On Promise: waiting for the promise:
-  	* On error: see error above
-	* Otherwise: 200 + `undefined` OR `JSON.stringify`-ed return value
 
 **Caveats:**
 
-* If the action asked for `res` then there is no auto-close. In this case we don't know whether the response is closed -- or will be closed -- in the action.
+* If the action asked for `res` then there is no auto-close. In this case we don't know whether the response is closed -- or will be closed -- in the action. The only exception is if the action throws an error: in that case we apply the regular error handler logic.
+
 
 
 ## `WebError` object
@@ -285,7 +286,7 @@ You should create the `req.user.hasPermission` function OR the `req.user.roles` 
 
 If you don't use permissions (`@Permission` or `@Authorize` or `@Public`) then you can ignore this subsection.
 
-If there are permission-related decorators in your app then you shall do at least one of the following:
+If there are permission-related decorators in your app then you shall do at least one of the following to avoid auto-authentication:
 
 - Decorate public functions (or controllers) with the `@Public` decorator
 - Register the controllers with `implicitPublic`, e.g.: `AdvancedController.regiseterAll(app, { implicitPublic: true })`

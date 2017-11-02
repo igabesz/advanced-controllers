@@ -1,3 +1,24 @@
+# 2.2.0 (2017-11-02)
+
+## FIXES
+
+- Add `.js.map` files to npm package
+- Add comments (JSDoc) to npm package
+- Close rejected async requests even if autoClose is set (`Response` object is used)
+- Actions with the same route and different method won't have their middlewares interfere with each other
+	- Now a middleware is applied if the route AND the method are ok. The latter is the news.
+- Middlewares are applied in the same order as their declaration
+- Readme fixes and update
+- Test fixes
+
+## CHANGES
+
+- Results of `string` or a `Promise<string>` wont't be JSON-serialized
+	- Technically it's a breaking change but sending JSON-serialized strings is clearly a bad practice noone should use
+- Error callback changed as it was already documented
+	- Debug callback already works this way
+
+
 # 2.1.1 (2017-07-10)
 
 ## FIXES
