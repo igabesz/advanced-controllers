@@ -34,6 +34,18 @@ class ReturnsTestController extends web.AdvancedController {
 		});
 	}
 
+	@web.Get('failing-autoclosed')
+	getFailingAutoClosed(@web.Res() res: web.Response) {
+		throw new Error('Catch me!');
+	}
+
+	@web.Get('failing-autoclosed-async')
+	async getFailingAutoClosedAsnyc(@web.Res() res: web.Response) {
+		await new Promise((resolve, reject) =>
+			setTimeout(() => reject(new Error('Catch me async!')), 100)
+		);
+	}
+
 }
 
 
@@ -61,6 +73,20 @@ describe('ReturnsTestController', () => {
 	it('should return rejected promise with error code', (done) => {
 		request(localBaseUrl + 'get-promise-rejected?code=999', (error, response, body) => {
 			assert.equal(response.statusCode, 999);
+			done();
+		});
+	});
+
+	it('should handle rejected autoClosed', done => {
+		request(localBaseUrl + 'failing-autoclosed', (error, response, body) => {
+			assert.equal(response.statusCode, 500);
+			done();
+		});
+	});
+
+	it('should handle rejected async autoClosed', done => {
+		request(localBaseUrl + 'failing-autoclosed-async', (error, response, body) => {
+			assert.equal(response.statusCode, 500);
 			done();
 		});
 	});

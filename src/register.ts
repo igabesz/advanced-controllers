@@ -103,12 +103,16 @@ function generateHandler({
 
 			// Calling the action
 			let result = actionFunc.apply(thisBind, params);
-			if (!autoClose) return;
 
 			// Awaiting if promise
 			if (result instanceof Promise) {
 				result = await result;
 			}
+
+			// No response sent in autoClosed functions
+			// Exception: Rejected autoClosed functions are handled
+			if (!autoClose) return;
+
 			// Sending back the results
 			if (typeof result === 'string') return res.send(result);
 			if (result !== undefined) return res.json(result);
