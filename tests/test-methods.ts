@@ -31,10 +31,10 @@ class MethodTestController extends AdvancedController {
 
 describe('MethodTestController', () => {
 	let ctrl: any;
-	let assertAndParse = (err, res, body) => {
+	let assertResponse = (err, res, body) => {
 		assert(!err);
 		assert.equal(res.statusCode, 200);
-		return JSON.parse(body);
+		return body;
 	};
 
 	before(() => {
@@ -44,7 +44,7 @@ describe('MethodTestController', () => {
 
 	it('should return get', (done) => {
 		request.get(localBaseUrl + '/get', (err, res, body) => {
-			let data = assertAndParse(err, res, body);
+			let data = assertResponse(err, res, body);
 			assert.equal(data, 'get');
 			done();
 		});
@@ -52,7 +52,7 @@ describe('MethodTestController', () => {
 
 	it('should handle empty action name', (done) => {
 		request.get(localBaseUrl + '', (err, res, body) => {
-			let data = assertAndParse(err, res, body);
+			let data = assertResponse(err, res, body);
 			assert.equal(data, 'get-empty');
 			done();
 		});
@@ -60,7 +60,7 @@ describe('MethodTestController', () => {
 
 	it('should return post', (done) => {
 		request.post(localBaseUrl + '/post', (err, res, body) => {
-			let data = assertAndParse(err, res, body);
+			let data = assertResponse(err, res, body);
 			assert.equal(data, 'post');
 			done();
 		});
@@ -68,7 +68,7 @@ describe('MethodTestController', () => {
 
 	it('should return put', (done) => {
 		request.put(localBaseUrl + '/put', (err, res, body) => {
-			let data = assertAndParse(err, res, body);
+			let data = assertResponse(err, res, body);
 			assert.equal(data, 'put');
 			done();
 		});
@@ -76,7 +76,7 @@ describe('MethodTestController', () => {
 
 	it('should return delete (use @del, not @delete)', (done) => {
 		request.del(localBaseUrl + '/delete', (err, res, body) => {
-			let data = assertAndParse(err, res, body);
+			let data = assertResponse(err, res, body);
 			assert.equal(data, 'delete');
 			done();
 		});

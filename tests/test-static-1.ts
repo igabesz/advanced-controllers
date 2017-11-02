@@ -24,7 +24,7 @@ class Static2TestController extends web.AdvancedController {
 
 	@web.Get('get-no-perm')
 	@web.Public()
-	getNoPerm() { return 'get-no-perm'; }
+	getNoPerm() { return { action: 'get-no-perm' }; }
 }
 
 @web.Permission('static-3')
@@ -64,7 +64,7 @@ describe('Static AdvancedController', () => {
 	it('should return get', (done) => {
 		request.get(baseUrl + 'static-2/get-no-perm', (err, res, body) => {
 			let data = assertAndParse(err, res, body);
-			assert.equal(data, 'get-no-perm');
+			assert.equal(data.action, 'get-no-perm');
 			done();
 		});
 	});

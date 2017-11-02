@@ -110,6 +110,7 @@ function generateHandler({
 				result = await result;
 			}
 			// Sending back the results
+			if (typeof result === 'string') return res.send(result);
 			if (result !== undefined) return res.json(result);
 			// No result -> We're done
 			res.sendStatus(200);
