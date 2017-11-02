@@ -14,6 +14,7 @@ var localBaseUrl = baseUrl + 'middleware/';
 @web.Public()
 class MiddlewareTestController extends web.AdvancedController {
 	middlewareCalled = false;
+	middlewareOrder: number[] = [];
 
 	@web.Get('no-middleware')
 	noMiddleware() {
@@ -45,6 +46,14 @@ class MiddlewareTestController extends web.AdvancedController {
 	@web.Middleware(function(this: MiddlewareTestController, eq, res, next) { this.middlewareCalled = true; next(); })
 	explicitMiddleware() {
 		return this.middlewareCalled;
+	}
+
+	@web.Get('order')
+	@web.Middleware(function mw1(this: MiddlewareTestController, eq, res, next) { this.middlewareOrder.push(0); next(); })
+	@web.Middleware(function mw2(this: MiddlewareTestController, eq, res, next) { this.middlewareOrder.push(1); next(); })
+	@web.Middleware(function mw3(this: MiddlewareTestController, eq, res, next) { this.middlewareOrder.push(2); next(); })
+	getMiddlewareOrder() {
+		return this.middlewareOrder;
 	}
 
 	// @web.Get('explicit-array-function-middleware')
@@ -104,6 +113,18 @@ describe('MiddlewareTestController', () => {
 		request(localBaseUrl + 'explicit-middleware', (err, res, body) => {
 			let data = assertAndParse(err, res, body);
 			assert.equal(data, true);
+			done();
+		});
+	});
+
+	it('should call middlewares in correct order', done => {
+		request(localBaseUrl + 'order', (err, res, body) => {
+			let order = assertAndParse(err, res, body);
+			assert.ok(Array.isArray(order));
+			assert.equal(order.length, 3);
+			assert.equal(order[0], 0);
+			assert.equal(order[1], 1);
+			assert.equal(order[2], 2);
 			done();
 		});
 	});

@@ -8,7 +8,7 @@ function addMiddleware(prop: HttpActionProperty, mwFunc: (req: Request, res: Res
 		params: [],
 		middlewares: [],
 	};
-	prop.action.middlewares.push(mwFunc);
+	prop.action.middlewares.unshift(mwFunc);
 }
 
 export function Middleware(middlewareFuncName: string): (target: any, funcName: string) => void;
