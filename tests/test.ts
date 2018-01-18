@@ -8,3 +8,6 @@ require('./test-permission');
 require('./test-namespace');
 require('./test-weberror');
 require('./test-static-2'); // Must be last
+
+// Close app
+require('./test-base-close');
