@@ -33,6 +33,11 @@ class ErrorController extends web.AdvancedController {
 		throw new web.WebError('ErrorText3', { statusCode: 405, errorCode: 1 });
 	}
 
+	@web.Get()
+	test4() {
+		throw new web.WebError('ErrorText4', { statusCode: 405, errorCode: 'error-text' });
+	}
+
 }
 
 
@@ -93,6 +98,18 @@ describe('WebError checks', () => {
 			assert.ok(data.errors[0]);
 			assert.equal(data.errors[0].message, 'ErrorText3');
 			assert.equal(data.errors[0].code, 1);
+			done();
+		});
+	});
+
+	it('should be able to return text errors', done => {
+		request.get(localBaseUrl + 'test4', (error, response, body) => {
+			assert.equal(response.statusCode, 405);
+			let data = JSON.parse(body);
+			assert.ok(data.errors);
+			assert.ok(data.errors[0]);
+			assert.equal(data.errors[0].message, 'ErrorText4');
+			assert.equal(data.errors[0].code, 'error-text');
 			done();
 		});
 	});
