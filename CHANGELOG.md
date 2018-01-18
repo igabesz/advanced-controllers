@@ -1,3 +1,11 @@
+# 2.2.1 (2018-01-18)
+
+# FEATURES
+
+- `WebError` can have text `errorCode` values as well
+- Update dependencies
+
+
 # 2.2.0 (2017-11-02)
 
 ## FIXES

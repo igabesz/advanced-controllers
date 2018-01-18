@@ -206,7 +206,7 @@ This object extends `Error` and can be used to conveniently send back custom HTT
 
 * `new WebError(message: string)`, sending HTTP status code 500 by default
 * `new WebError(message: string, statusCode: number)`
-* `new WebError(message: string, settings: { statusCode?: number, errorCode?: number})`, the `errorCode` will be in the result JSON as `errors[0].code`
+* `new WebError(message: string, settings: { statusCode?: number, errorCode?: number | string})`, the `errorCode` will be in the result JSON as `errors[0].code`
 
 The result will be something like this: `{ "errors": [ { "message": "some-stuff", "code": 1 }]}` + HTTP 400 header
 
