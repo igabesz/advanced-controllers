@@ -12,7 +12,7 @@ var localBaseUrl = baseUrl + 'binding/';
 @Controller('binding')
 class BindingTestController extends AdvancedController {
 	items: number[] = [];
-	message: string;
+	message?: string;
 
 	@Get()
 	reqres(

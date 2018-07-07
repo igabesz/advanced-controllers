@@ -32,9 +32,9 @@ export class WebError extends Error {
 		error.json = { errors: [ { message, code: errorCode } ]};
 	}
 	statusCode: number;
-	code: number | string;
-	text: string;
-	json: Object | Array<any>;
+	code?: number | string;
+	text?: string;
+	json?: Object | Array<any>;
 
 	constructor(message: string);
 	constructor(message: string, statusCode: number);

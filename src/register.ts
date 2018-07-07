@@ -70,7 +70,7 @@ function registerControllerFunction(
 
 	// Applying actionProcessor on app
 	let method = <'get'|'post'|'put'|'delete'|'options'|'head'>_.toLower(action.method);
-	app[method](url, actionProcessor);
+	app[method](url, actionProcessor as any);
 }
 
 function generateHandler({

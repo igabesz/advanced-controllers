@@ -79,16 +79,16 @@ export function resolver(bind: PropBinding, validator?: Validator): (params: any
 		case 'param':
 		case 'query':
 			return (params: any[], req: Request, res: Response) => {
-				let name = <string>bind.name;
-				let value: string = bind.from === 'query' ? req.query[name] : req.params[name];
+				const bindName = bind.name as string;
+				let value: string = bind.from === 'query' ? req.query[bindName] : req.params[bindName];
 				if (value === undefined) {
-					if (!bind.opt) throw new WebError(`Missing ${bind.from} property: ${bind.name}`, 400);
+					if (!bind.opt) throw new WebError(`Missing ${bind.from} property: ${bindName}`, 400);
 					params[bind.index] = undefined;
 					return;
 				}
 				if (validator) {
 					value = validator.parse(value);
-					if (!validator.check(value)) throw new Error(`Invalid ${bind.from} value: ${bind.name} should be a ${bind.type}`);
+					if (!validator.check(value)) throw new Error(`Invalid ${bind.from} value: ${bindName} should be a ${bind.type}`);
 				}
 				params[bind.index] = value;
 			};
@@ -96,14 +96,15 @@ export function resolver(bind: PropBinding, validator?: Validator): (params: any
 		// Body: we MUST have body-parser here
 		case 'body': return (params: any[], req: Request, res: Response) => {
 			// It MUST be parsed
+			const propName = bind.name as string;
 			let value = req.body[<string|symbol>bind.name];
 			if (value === undefined) {
-				if (!bind.opt) throw new WebError(`Missing property: ${bind.name}`, 400);
+				if (!bind.opt) throw new WebError(`Missing property: ${propName}`, 400);
 				params[bind.index] = undefined;
 				return;
 			}
 			if (validator) {
-				if (!validator.check(value)) throw new Error(`Invalid value: ${bind.name} should be a ${bind.type}`);
+				if (!validator.check(value)) throw new Error(`Invalid value: ${propName} should be a ${bind.type}`);
 			}
 			params[bind.index] = value;
 		};
