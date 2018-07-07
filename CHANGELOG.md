@@ -1,3 +1,8 @@
+# 2.2.2 (2018-07-07)
+
+- Update dependencies
+
+
 # 2.2.1 (2018-01-18)
 
 # FEATURES
