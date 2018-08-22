@@ -9,6 +9,7 @@ export const validators: Validator[] = [
 	{ type: Number, check: _.isNumber, parse: parseInt },
 	{ type: Object, check: _.isObject, parse: JSON.parse },
 	{ type: Array, check: _.isArray, parse: JSON.parse },
+	{ type: Boolean, check: _.isBoolean, parse: input => input === 'true' },
 ];
 
 export function addValidator(validator: Validator) {
