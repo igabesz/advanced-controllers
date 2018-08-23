@@ -1,3 +1,10 @@
+# 2.2.3 (2018-08-23)
+
+- Validator for booleans -- Contribution from [kundralaci](https://github.com/kundralaci)
+- Test for boolean bindings
+- Update deps
+
+
 # 2.2.2 (2018-07-07)
 
 - Update dependencies
