@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import * as assert from 'assert';
+import { assert } from 'chai';
 import * as request from 'request';
 
 import { Controller, Get, Post, Req, Res, Request, Response, Body, Query, Param, AdvancedController } from '../dist/index';
@@ -70,6 +70,16 @@ class BindingTestController extends AdvancedController {
 		this.message = message;
 		this.items.push(value);
 		return { last: _.last(this.items) };
+	}
+
+	@Post('items-bool')
+	returnItemsFromQuery(
+		@Query('truthyQuery', Boolean) truthyQuery: boolean,
+		@Query('falsyQuery', Boolean) falsyQuery: boolean,
+		@Body('truthyBody', Boolean) truthyBody: boolean,
+		@Body('falsyBody', Boolean) falsyBody: boolean,
+	) {
+		return { truthyQuery, falsyQuery, truthyBody, falsyBody };
 	}
 
 	@Get('items-params/:id')
@@ -187,6 +197,21 @@ describe('BindingTestController', () => {
 			let data = JSON.parse(body);
 			assert.strictEqual(data.last, 33);
 			assert.strictEqual(mainController.message, message);
+			done();
+		});
+	});
+
+	it('should parse booleans', done => {
+		request.post({
+			url: localBaseUrl + 'items-bool?truthyQuery=true&falsyQuery=definitely-not-true',
+			json: { truthyBody: true, falsyBody: false },
+		}, (err, res, result) => {
+			generalAssert(err, res);
+			assert.ok(result);
+			assert.isTrue(result.truthyQuery, 'truthyQuery');
+			assert.isTrue(result.truthyBody, 'truthyBody');
+			assert.isFalse(result.falsyQuery, 'falsyQuery');
+			assert.isFalse(result.falsyBody, 'falsyBody');
 			done();
 		});
 	});
