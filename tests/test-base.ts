@@ -1,6 +1,6 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
-import * as assert from 'assert';
+import { assert } from 'chai';
 import * as http from 'http';
 
 
@@ -19,3 +19,9 @@ describe('Startup', () => {
 		});
 	});
 });
+
+
+export function assertStatusCode(err, res) {
+	assert.notOk(err);
+	assert.equal(res.statusCode, 200);
+};

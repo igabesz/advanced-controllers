@@ -26,7 +26,7 @@ describe('Role based authorization', () => {
 
 	let errCnt = 0;
 	let ctrl: StaticTestController;
-	let assertResponse = (err, res, body) => {
+	let assertStatusCode = (err, res, body) => {
 		assert(!err);
 		assert.equal(res.statusCode, 200);
 		return body;
@@ -49,7 +49,7 @@ describe('Role based authorization', () => {
 
 	it('should allow role based authentication', (done) => {
 		request.get(localBaseUrl + 'get1', (err, res, body) => {
-			let data = assertResponse(err, res, body);
+			let data = assertStatusCode(err, res, body);
 			assert.equal(data, 'static-11');
 			assert.equal(errCnt, 0);
 			done();
@@ -59,7 +59,7 @@ describe('Role based authorization', () => {
 	it('should filter unauthorized accesses even with hasPermission', (done) => {
 		request.get(localBaseUrl + 'get2', (err, res, body) => {
 			assert.throws(() => {
-				assertResponse(err, res, body);
+				assertStatusCode(err, res, body);
 			});
 			let data = JSON.parse(body);
 			assert.equal(data.errors[0].message, 'Unauthorized');
@@ -75,12 +75,12 @@ describe('Role based authorization', () => {
 		]);
 		// This is added
 		request.get(localBaseUrl + 'get2', (err, res, body) => {
-			let data = assertResponse(err, res, body);
+			let data = assertStatusCode(err, res, body);
 			assert.equal(data, 'static-12');
 			// This is revoked
 			request.get(localBaseUrl + 'get1', (err2, res2, body2) => {
 				assert.throws(() => {
-					assertResponse(err2, res2, body2);
+					assertStatusCode(err2, res2, body2);
 				});
 				assert.equal(errCnt, 0);
 				done();

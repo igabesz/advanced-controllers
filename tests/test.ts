@@ -2,6 +2,7 @@ require('./test-static-1'); // Must be first
 require('./test-mw');
 require('./test-methods');
 require('./test-bindings');
+require('./test-user');
 require('./test-returns');
 require('./test-special');
 require('./test-permission');
