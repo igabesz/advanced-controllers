@@ -1,6 +1,8 @@
 import { HttpActionProperty, ParamFrom, PropBinding, Validator, WebError } from './types';
 import { Request, Response } from 'express';
-export { Request, Response } from 'express';
+
+
+export { Request, Response };
 
 
 export type ActionDecorator = (target: any, propertyKey: string | symbol, parameterIndex: number) => void;
@@ -18,7 +20,7 @@ function addParam(prop: HttpActionProperty, name: string | symbol | undefined, i
 /** Bind raw request object */
 export function Req(): ActionDecorator {
 	return (target, propertyKey, parameterIndex) => {
-		let prop = <HttpActionProperty>target[propertyKey];
+		const prop = <HttpActionProperty>target[propertyKey];
 		addParam(prop, undefined, parameterIndex, 'req', 'req', false);
 	};
 }
@@ -26,14 +28,22 @@ export function Req(): ActionDecorator {
 /** Bind raw response object */
 export function Res(): ActionDecorator {
 	return (target, propertyKey, parameterIndex) => {
-		let prop = <HttpActionProperty>target[propertyKey];
+		const prop = <HttpActionProperty>target[propertyKey];
 		addParam(prop, undefined, parameterIndex, 'res', 'res', false);
 	};
 }
 
+/** Binds the `request.user` object. */
+export function User(): ActionDecorator {
+	return (target, propertyKey, parameterIndex) => {
+		const prop = <HttpActionProperty>target[propertyKey];
+		addParam(prop, undefined, parameterIndex, 'user', 'user', false);
+	}
+}
+
 function addParamBinding(name: string | undefined, optional: boolean | undefined, from: ParamFrom, type: any): ActionDecorator {
 	return (target, propertyKey, parameterIndex) => {
-		let prop = <HttpActionProperty>target[propertyKey];
+		const prop = <HttpActionProperty>target[propertyKey];
 		addParam(prop, name, parameterIndex, from, type, optional || false);
 	};
 }
@@ -74,6 +84,7 @@ export function resolver(bind: PropBinding, validator?: Validator): (params: any
 	switch (bind.from) {
 		case 'req': return (params: any[], req: Request, res: Response) => { params[bind.index] = req; };
 		case 'res': return (params: any[], req: Request, res: Response) => { params[bind.index] = res; };
+		case 'user': return (params: any[], req: Request, res: Response) => { params[bind.index] = (req as any).user; }
 
 		// Query or Param: we DON'T have body-parser here, we have to parse manually
 		case 'param':

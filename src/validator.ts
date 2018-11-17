@@ -1,19 +1,20 @@
-import * as _ from 'lodash';
+import { isString, isNumber, isObject, isArray, isBoolean, some } from 'lodash';
 import { Validator } from './types';
 
 
 export const validators: Validator[] = [
-	{ type: 'req', check: input => true, parse: input => input },
-	{ type: 'res', check: input => true, parse: input => input, disableAutoClose: true },
-	{ type: String, check: _.isString, parse: input => input },
-	{ type: Number, check: _.isNumber, parse: parseInt },
-	{ type: Object, check: _.isObject, parse: JSON.parse },
-	{ type: Array, check: _.isArray, parse: JSON.parse },
-	{ type: Boolean, check: _.isBoolean, parse: input => input === 'true' },
+	{ type: 'req', check: () => true, parse: input => input },
+	{ type: 'res', check: () => true, parse: input => input, disableAutoClose: true },
+	{ type: 'user', check: () => true, parse: input => input },
+	{ type: String, check: isString, parse: input => input },
+	{ type: Number, check: isNumber, parse: parseInt },
+	{ type: Object, check: isObject, parse: JSON.parse },
+	{ type: Array, check: isArray, parse: JSON.parse },
+	{ type: Boolean, check: isBoolean, parse: input => input === 'true' },
 ];
 
 export function addValidator(validator: Validator) {
-	if (_.some(validators, {type: validator.type})) {
+	if (some(validators, {type: validator.type})) {
 		throw new Error(`Cannot add validator with type ${validator.type}: already parsing that!`);
 	}
 	validators.push(validator);
