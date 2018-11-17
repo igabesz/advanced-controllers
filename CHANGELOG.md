@@ -1,26 +1,35 @@
-# 2.2.3 (2018-08-23)
+# CHANGELOG
+
+## 2.3.0 (2018-11-17)
+
+- Added `@User()` attribute decorator, shorthand for `request.user`, useful for authorization.
+- Changelog styling updated
+- Update deps
+
+
+## 2.2.3 (2018-08-23)
 
 - Validator for booleans -- Contribution from [kundralaci](https://github.com/kundralaci)
 - Test for boolean bindings
 - Update deps
 
 
-# 2.2.2 (2018-07-07)
+## 2.2.2 (2018-07-07)
 
 - Update dependencies
 
 
-# 2.2.1 (2018-01-18)
+## 2.2.1 (2018-01-18)
 
-# FEATURES
+**Features**
 
 - `WebError` can have text `errorCode` values as well
 - Update dependencies
 
 
-# 2.2.0 (2017-11-02)
+## 2.2.0 (2017-11-02)
 
-## FIXES
+**Fixes**
 
 - Add `.js.map` files to npm package
 - Add comments (JSDoc) to npm package
@@ -31,7 +40,7 @@
 - Readme fixes and update
 - Test fixes
 
-## CHANGES
+**Changes**
 
 - Results of `string` or a `Promise<string>` wont't be JSON-serialized
 	- Technically it's a breaking change but sending JSON-serialized strings is clearly a bad practice noone should use
@@ -39,47 +48,47 @@
 	- Debug callback already works this way
 
 
-# 2.1.1 (2017-07-10)
+## 2.1.1 (2017-07-10)
 
-## FIXES
+**Fixes**
 
 - Permission name generation for actions with routes `/`, `/:*` would also generate `ctrlname:funcname`
 
 
-# 2.1.0 (2017-07-10)
+## 2.1.0 (2017-07-10)
 
-## CHANGES (undocumented breaking)
+**Changes** (undocumented breaking)
 
 - `@Get('')` and other methods will register to `/ctrlname` instead of `/ctrlname/`
 - Permission for `Get('')` will be `ctrlName.funcName`
 - Using different permissions on same route + different method is available. Using any permission and no permission (Public) on the same route + different method is still forbidden.
 
 
-# 2.0.0 (2017-06-28)
+## 2.0.0 (2017-06-28)
 
-# FIXES
+**Fixes**
 
 - Fixes in readme (typos, errors)
 
 
-## BREAKING CHANGES: Renames
+**BREAKING CHANGES**: Renames
 
 - `@AllowAnonymus` --> `@Public`
 - `getAllWhiteList` --> `getAllPublicRoutes`
 - `getWhiteList` --> `getPublicRoutes`
 
 
-# 1.1.0 (2017-06-28)
+## 1.1.0 (2017-06-28)
 
-## FEATURES
+**Features**
 
 - Less constraints on `Body`, `Query` and `Param`: each can be used without types
 - Minor undocumented change: `@Body()` won't validate `body` to be an Object
 
 
-# 1.0.0 (2017-06-28)
+## 1.0.0 (2017-06-28)
 
-## FEATURES
+**Features**
 
 - Introduced some static messages on `AdvancedController` affecting every existing controller instances
 - Role-based authentication + authorization
@@ -88,7 +97,7 @@
 - WhiteLists
 - Some checks to prevent various unintentional cases (e.g. 2 controllers using the same name)
 
-## BREAKING CHANGES
+**BREAKING CHANGES**
 
 - Rename all decorators: `camelCase` --> `PascalCase` (e.g. `get` --> `Get`)
 - Type rename: `Req` --> `Request`, `Res` --> `Response`
@@ -98,41 +107,41 @@
 - TS build: Requires full ES2015 lib (specifically: `ES2015.collections`, even more specifically: `Map`)
 
 
-# 0.4.0 (2017-05-05)
+3# 0.4.0 (2017-05-05)
 
-## FEATURES
+**Features**
 
 - Permission support on classes
 
 
-# 0.3.2 (2017-05-04)
+## 0.3.2 (2017-05-04)
 
-## FIXES
+**Fixes**
 
 * Fix enables using controller classes having a member variable with `function` type
 
 
-# 0.3.1 (2017-02-23)
+## 0.3.1 (2017-02-23)
 
-## FEATURES
+**Features**
 
 * `WebError` can be used to send back a `code` besides a message. `{ errors: [ { message: string, code?: number }] }`
 
 No breaking change, only extension.
 
 
-# 0.3.0 (2017-01-11)
+## 0.3.0 (2017-01-11)
 
-## FEATURES
+**Features**
 
 * Permission support
 * Namespace support
 
-## BREAKING CHANGES
+**BREAKING CHANGES**
 
 * Obsolete decorators like `@queryString` and `@bodyNumber` are removed
 
-## NOTES
+**Notes**
 
 * Code is restructured into several files
 * Removed `typings`, now using `@types/<name>` NPM packages
@@ -141,9 +150,9 @@ No breaking change, only extension.
 * Planning to go to `es2015` package build
 
 
-# 0.2.0 (2016-04-17)
+## 0.2.0 (2016-04-17)
 
-### FEATURES
+**Features**
 
 * Can parse whole body (#2)
 * Custom validation and parsing can be added
@@ -151,6 +160,6 @@ No breaking change, only extension.
   * Default settings: sending back something like [JSON API](http://jsonapi.org/format/): `"{"errors":[{"message":"<ERROR-MSG>"}]}"`
 * `@queryTYPE` and `@bodyTYPE` are obsolete; use `@query(name, type, opt?)` instead
 
-### BREAKING CHANGES
+**BREAKING CHANGES**
 
 * Error messages are not plain text but JSON objects by default
