@@ -1,5 +1,3 @@
-import * as _ from 'lodash';
-import * as mocha from 'mocha';
 import * as assert from 'assert';
 import * as request from 'request';
 

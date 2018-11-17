@@ -1,5 +1,4 @@
 import * as express from 'express';
-import * as _ from 'lodash';
 import { Request, Response, HttpActionProperty, RequestWithUser, WebError, getAllFuncs, Validator } from './types';
 import { validators } from './validator';
 import { resolver } from './params';
@@ -69,7 +68,7 @@ function registerControllerFunction(
 	let actionProcessor = generateHandler({ binders, argLength, errorLogger, autoClose, thisBind, actionFunc, permCheck });
 
 	// Applying actionProcessor on app
-	let method = <'get'|'post'|'put'|'delete'|'options'|'head'>_.toLower(action.method);
+	let method = <'get'|'post'|'put'|'delete'|'options'|'head'> action.method.toLowerCase();
 	app[method](url, actionProcessor as any);
 }
 
