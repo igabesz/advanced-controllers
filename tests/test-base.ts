@@ -13,9 +13,11 @@ app.use(bodyParser.json());
 
 describe('Startup', () => {
 	it('should start already', (done) => {
-		server = app.listen(port, (err) => {
-			assert(err === null || err === undefined);
+		server = app.listen(port, () => {
 			done();
+		}).on('error', (err: any) => {
+			console.log(err);
+			assert(err === null || err === undefined);
 		});
 	});
 });

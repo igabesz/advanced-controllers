@@ -103,7 +103,7 @@ function generateHandler({
 			for (let binder of binders) binder(params, req, res);
 
 			// Calling the action
-			let result = actionFunc.apply(thisBind, params);
+			let result = (actionFunc as Function).apply(thisBind, params);
 
 			// Awaiting if promise
 			if (result instanceof Promise) {
