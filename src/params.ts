@@ -91,14 +91,14 @@ export function resolver(bind: PropBinding, validator?: Validator): (params: any
 		case 'query':
 			return (params: any[], req: Request, res: Response) => {
 				const bindName = bind.name as string;
-				let value: string = bind.from === 'query' ? req.query[bindName] : req.params[bindName];
+				let value = bind.from === 'query' ? req.query[bindName] : req.params[bindName];
 				if (value === undefined) {
 					if (!bind.opt) throw new WebError(`Missing ${bind.from} property: ${bindName}`, 400);
 					params[bind.index] = undefined;
 					return;
 				}
 				if (validator) {
-					value = validator.parse(value);
+					value = validator.parse(value as string);
 					if (!validator.check(value)) throw new Error(`Invalid ${bind.from} value: ${bindName} should be a ${bind.type}`);
 				}
 				params[bind.index] = value;

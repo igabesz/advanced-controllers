@@ -1,4 +1,5 @@
 import * as express from 'express';
+import * as url from 'url';
 import { Request, Response, HttpActionProperty, RequestWithUser, WebError, getAllFuncs, Validator } from './types';
 import { validators } from './validator';
 import { resolver } from './params';
@@ -32,19 +33,19 @@ function registerControllerFunction(
 	}
 
 	let controllerName = thisBind.constructor.__controller.name;
-	let url = controllerName + action.url;
+	let path = controllerName + action.url;
 	if (namespace) {
 		if (namespace[0] !== '/') namespace = '/' + namespace;
-		url = namespace + url;
+		path = namespace + path;
 	}
-	debugLogger && debugLogger(`Registering ${action.method} ${url} [${action.params.map(p => p.name)}]`);
+	debugLogger && debugLogger(`Registering ${action.method} ${path} [${action.params.map(p => p.name)}]`);
 
 	// Applying middleware
 	for (let mwFunc of action.middlewares) {
-		debugLogger && debugLogger(`Registering ${action.method} ${url} <MW> ${mwFunc.name}`);
+		debugLogger && debugLogger(`Registering ${action.method} ${path} <MW> ${mwFunc.name}`);
 		mwFunc = mwFunc.bind(thisBind);
 		// Middleware must applied for this method only
-		app.use(url, (req, res, done) => (req.method === action.method) ? mwFunc(req, res, done) : done());
+		app.use(path, (req, res, done) => (req.method === action.method) ? mwFunc(req, res, done) : done());
 	}
 
 	// Creating parser functions
@@ -69,7 +70,7 @@ function registerControllerFunction(
 
 	// Applying actionProcessor on app
 	let method = <'get'|'post'|'put'|'delete'|'options'|'head'> action.method.toLowerCase();
-	app[method](url, actionProcessor as any);
+	app[method](path, actionProcessor as any);
 }
 
 function generateHandler({
@@ -103,7 +104,7 @@ function generateHandler({
 			for (let binder of binders) binder(params, req, res);
 
 			// Calling the action
-			let result = actionFunc.apply(thisBind, params);
+			let result = (actionFunc as Function).apply(thisBind, params);
 
 			// Awaiting if promise
 			if (result instanceof Promise) {
@@ -123,7 +124,17 @@ function generateHandler({
 		// Internal error
 		catch (ex) {
 			let message = ex.message || '<no message>';
-			(!ex.statusCode) && errorLogger && errorLogger(`Request failed: ${message}`, ex);
+			let originalUrl = new url.URL(req.originalUrl);
+			let request = {
+				hostname: req.hostname,
+				// Strip query params and other potentially sensitive parts
+				url: url.format(originalUrl, { search: false, auth: false, fragment: false }),
+				origin: req.get('origin'),
+				referer: req.get('referer'),
+				'user-agent': req.get('user-agent'),
+				'x-forwarded-for': req.get('x-forwarded-for'),
+			};
+			(!ex.statusCode) && errorLogger && errorLogger(`Request failed: ${message}`, { error: ex, request });
 			handleError(ex, res);
 		}
 	};
