@@ -44,14 +44,14 @@ class ErrorController extends web.AdvancedController {
 describe('WebError checks', () => {
 	let ctrl: ErrorController;
 	let errorMessage: string;
-	let errorInstance: any;
+	let errorPayload: any;
 
 	before(() => {
 		ctrl = new ErrorController();
 		ctrl.register(app, {
 			errorLogger: (message, err) => {
 				errorMessage = message;
-				errorInstance = err;
+				errorPayload = err;
 			},
 		});
 	});
@@ -59,11 +59,13 @@ describe('WebError checks', () => {
 	it('should handle regular internal errors properly', done => {
 		let msg = 'Regular Error';
 		errorMessage = '';
-		errorInstance = undefined;
+		errorPayload = undefined;
 		request(localBaseUrl + 'regular?msg=' + msg, (err, response, body) => {
 			assert.equal(response.statusCode, 500);
 			assert.equal(errorMessage, 'Request failed: ' + msg);
-			assert.ok(errorInstance instanceof Error);
+			assert.ok(errorPayload.error instanceof Error);
+			assert.equal(errorPayload.request.method, 'GET');
+			assert.equal(errorPayload.request.path, '/error/regular');
 			done();
 		});
 	});

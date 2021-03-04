@@ -1,5 +1,4 @@
 import * as express from 'express';
-import * as url from 'url';
 import { Request, Response, HttpActionProperty, RequestWithUser, WebError, getAllFuncs, Validator } from './types';
 import { validators } from './validator';
 import { resolver } from './params';
@@ -124,11 +123,10 @@ function generateHandler({
 		// Internal error
 		catch (ex) {
 			let message = ex.message || '<no message>';
-			let originalUrl = new url.URL(req.originalUrl);
 			let request = {
 				hostname: req.hostname,
-				// Strip query params and other potentially sensitive parts
-				url: url.format(originalUrl, { search: false, auth: false, fragment: false }),
+				method: req.method,
+				path: req.path,
 				origin: req.get('origin'),
 				referer: req.get('referer'),
 				'user-agent': req.get('user-agent'),
