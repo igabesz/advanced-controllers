@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2.4.0 (2021-03-04)
+
+- Better error logging: besides the error object, send a lot of useful info to the logger.
+- Update deps
+
+
 ## 2.3.0 (2018-11-17)
 
 - Added `@User()` attribute decorator, shorthand for `request.user`, useful for authorization.
