@@ -121,7 +121,7 @@ function generateHandler({
 			res.sendStatus(200);
 		}
 		// Internal error
-		catch (ex) {
+		catch (ex: any) {
 			let message = ex.message || '<no message>';
 			let request = {
 				hostname: req.hostname,

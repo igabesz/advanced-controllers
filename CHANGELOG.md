@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2.4.1 (2023-01-02)
+
+- Update deps
+- Fix breaking tests
+
+
 ## 2.4.0 (2021-03-04)
 
 - Better error logging: besides the error object, send a lot of useful info to the logger.

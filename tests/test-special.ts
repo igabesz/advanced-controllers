@@ -131,7 +131,7 @@ describe('Various Error Checks', () => {
 		let ctrl = new DivergentPermissions();
 		assert.throws(() => {
 			ctrl.register(app);
-		}, err => err.message.indexOf('Divergent permissions') !== -1);
+		}, (err: any) => err.message.indexOf('Divergent permissions') !== -1);
 	});
 
 	it('should not throw on different but not Public permissions on the same route (different methods)', () => {
