@@ -17,6 +17,9 @@ class UserController extends web.AdvancedController {
 
 	@web.Get('not-ok')
 	notOk(@web.User() user: User): User { return user; }
+
+	@web.Get('ok-fallback-to-auth')
+	okFallbackToAuth(@web.User() user: User): User { return user; }
 }
 
 
@@ -26,12 +29,26 @@ describe('User binding', () => {
 			(req as any).user = { id: 43 };
 			next();
 		});
+		app.use('/user-test/ok-fallback-to-auth', (req, _res, next) => {
+			(req as any).auth = { id: 43 };
+			next();
+		});
 		const mainController = new UserController();
 		mainController.register(app, { implicitAccess: true });
 	});
 
 	it('should have user at the good path', (done) => {
 		request(baseUrl + 'user-test/ok', (error, response, body) => {
+			assertStatusCode(error, response);
+			const data = JSON.parse(body);
+			assert.ok(data);
+			assert.equal(data.id, 43);
+			done();
+		});
+	});
+
+	it('should have user at the good path as fallback to `auth`', (done) => {
+		request(baseUrl + 'user-test/ok-fallback-to-auth', (error, response, body) => {
 			assertStatusCode(error, response);
 			const data = JSON.parse(body);
 			assert.ok(data);

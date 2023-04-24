@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 export { Request, Response } from 'express';
 
 
-export type ParamFrom = 'req' | 'res' | 'user' | 'query' | 'param' | 'body' | 'full-body';
+export type ParamFrom = 'req' | 'res' | 'user' | 'auth' | 'query' | 'param' | 'body' | 'full-body';
 
 export type PropBinding = {
 	index: number;

@@ -3,6 +3,7 @@ require('./test-mw');
 require('./test-methods');
 require('./test-bindings');
 require('./test-user');
+require('./test-auth');
 require('./test-returns');
 require('./test-special');
 require('./test-permission');
