@@ -68,8 +68,12 @@ export interface Validator {
 	disableAutoClose?: boolean;
 }
 
-export interface RequestWithUser extends Request {
+export interface RequestWithUserOrAuth extends Request {
 	user: {
+		hasPermission?(permission: string): boolean | Promise<boolean>;
+		roles?: string[];
+	};
+	auth: {
 		hasPermission?(permission: string): boolean | Promise<boolean>;
 		roles?: string[];
 	};

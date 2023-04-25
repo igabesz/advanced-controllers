@@ -1,5 +1,5 @@
 import * as express from 'express';
-import { Request, Response, HttpActionProperty, RequestWithUser, WebError, getAllFuncs, Validator } from './types';
+import { Request, Response, HttpActionProperty, RequestWithUserOrAuth, WebError, getAllFuncs, Validator } from './types';
 import { validators } from './validator';
 import { resolver } from './params';
 import { permCheckGenerator, PermCheckResult, setRoleMap } from './permission';
@@ -87,9 +87,9 @@ function generateHandler({
 	autoClose: boolean,
 	thisBind: any,
 	actionFunc: HttpActionProperty,
-	permCheck: (req: RequestWithUser) => Promise<PermCheckResult>,
+	permCheck: (req: RequestWithUserOrAuth) => Promise<PermCheckResult>,
 }) {
-	return async(req: RequestWithUser, res: Response) => {
+	return async(req: RequestWithUserOrAuth, res: Response) => {
 		let params = new Array(argLength);
 		try {
 			// Permission check
