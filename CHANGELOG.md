@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2.5.0 (2023-05-04)
+
+- Introduce `@Auth()` and deprecate `@User()` to support `express-jwt` version 7 and above.
+
 ## 2.4.1 (2023-01-02)
 
 - Update deps
