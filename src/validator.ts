@@ -6,6 +6,7 @@ export const validators: Validator[] = [
 	{ type: 'req', check: () => true, parse: input => input },
 	{ type: 'res', check: () => true, parse: input => input, disableAutoClose: true },
 	{ type: 'user', check: () => true, parse: input => input },
+	{ type: 'auth', check: () => true, parse: input => input },
 	{ type: String, check: isString, parse: input => input },
 	{ type: Number, check: isNumber, parse: parseInt },
 	{ type: Object, check: isObject, parse: JSON.parse },

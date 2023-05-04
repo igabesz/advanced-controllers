@@ -33,11 +33,21 @@ export function Res(): ActionDecorator {
 	};
 }
 
-/** Binds the `request.user` object. */
+/** Binds the `request.user` object.
+ *  @deprecated Use `Auth()` when using express-jwt > 6.
+*/
 export function User(): ActionDecorator {
 	return (target, propertyKey, parameterIndex) => {
 		const prop = <HttpActionProperty>target[propertyKey];
 		addParam(prop, undefined, parameterIndex, 'user', 'user', false);
+	}
+}
+
+/** Binds the `request.auth` object. */
+export function Auth(): ActionDecorator {
+	return (target, propertyKey, parameterIndex) => {
+		const prop = <HttpActionProperty>target[propertyKey];
+		addParam(prop, undefined, parameterIndex, 'auth', 'auth', false);
 	}
 }
 
@@ -84,7 +94,12 @@ export function resolver(bind: PropBinding, validator?: Validator): (params: any
 	switch (bind.from) {
 		case 'req': return (params: any[], req: Request, res: Response) => { params[bind.index] = req; };
 		case 'res': return (params: any[], req: Request, res: Response) => { params[bind.index] = res; };
-		case 'user': return (params: any[], req: Request, res: Response) => { params[bind.index] = (req as any).user; }
+		/** NOTE: express-jwt changed where decoded JTW is put in versions > 6.
+			Old way: `req.user`
+			New way: `req.auth`
+			More info: https://github.com/auth0/express-jwt#migration-from-v6 */
+		case 'user': return (params: any[], req: Request, res: Response) => { params[bind.index] = (req as any).user || (req as any).auth; }
+		case 'auth': return (params: any[], req: Request, res: Response) => { params[bind.index] = (req as any).auth; }
 
 		// Query or Param: we DON'T have body-parser here, we have to parse manually
 		case 'param':

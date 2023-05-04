@@ -1,4 +1,4 @@
-import { HttpActionProperty, Request, Response, RequestWithUser, WebError, getAllFuncs } from './types';
+import { HttpActionProperty, Request, Response, RequestWithUserOrAuth, WebError, getAllFuncs } from './types';
 
 
 function permissionOnAction(permission: string | boolean, target: any, funcName: string) {
@@ -77,27 +77,31 @@ let roleMap: Map<string, string[]> | undefined = undefined;
 export function setRoleMap(newRoleMap: Map<string, string[]>) { roleMap = newRoleMap; }
 
 /** Internal helper: Generate permission checker function */
-export function permCheckGenerator(target: any, actionFunc: HttpActionProperty): (req: RequestWithUser) => Promise<PermCheckResult> {
+export function permCheckGenerator(target: any, actionFunc: HttpActionProperty): (req: RequestWithUserOrAuth) => Promise<PermCheckResult> {
 	let permName = actionFunc.action.permission;
 	// No authentication required
 	if (permName === undefined || permName === false) {
-		return (req: RequestWithUser) => Promise.resolve(PermCheckResult.ok());
+		return (req: RequestWithUserOrAuth) => Promise.resolve(PermCheckResult.ok());
 	}
 	// Must be authenticated
 	if (permName === true) {
-		return (req: RequestWithUser) => {
-			if (req.user) return Promise.resolve(PermCheckResult.ok());
+		return (req: RequestWithUserOrAuth) => {
+			// Use either `req.user` or `req.auth`
+			const user = req.user || req.auth;
+			if (user) return Promise.resolve(PermCheckResult.ok());
 			return Promise.resolve(PermCheckResult.unauthenticated());
 		};
 	}
 	// Must be authenticated + authorized
-	return async(req: RequestWithUser) => {
+	return async(req: RequestWithUserOrAuth) => {
+		// Use either `req.user` or `req.auth`
+		const user = req.user || req.auth;
 		// 1st: Check authentication
-		if (!req.user) return PermCheckResult.unauthenticated();
+		if (!user) return PermCheckResult.unauthenticated();
 		// 2nd: Role based authentication
 		if (roleMap) {
-			if (!Array.isArray(req.user.roles)) return PermCheckResult.unauthorized();
-			for (let role of req.user.roles) {
+			if (!Array.isArray(user.roles)) return PermCheckResult.unauthorized();
+			for (let role of user.roles) {
 				let rolePermissions = roleMap.get(role);
 				if (!rolePermissions) return PermCheckResult.unauthorized();
 				if (rolePermissions.indexOf(<string>permName) !== -1) return PermCheckResult.ok();
@@ -105,10 +109,10 @@ export function permCheckGenerator(target: any, actionFunc: HttpActionProperty):
 			return PermCheckResult.unauthorized();
 		}
 		// 3rd: Check user.hasPermission
-		if (!req.user.hasPermission) {
+		if (!user.hasPermission) {
 			return PermCheckResult.unauthorized();
 		}
-		let hasPermission = req.user.hasPermission(<string>permName);
+		let hasPermission = user.hasPermission(<string>permName);
 		if (hasPermission instanceof Promise) {
 			hasPermission = await hasPermission;
 		}

@@ -170,13 +170,22 @@ class CasualController extends web.AdvancedController {
 }
 ```
 
+**Authenticated Users**
+
 There's a `@User` shorthand which returns the `request.user` object (or `undefined`). The value of the user is usually set in an express middleware such as `express-jwt`.
+
+_Note: `express-jwt` versions below 7 used `request.user`, but from 7+ they use `request.auth`. The `@User` shorthand returns whichever it finds. There's also an `@Auth` that only works with 7+ versions._
 
 ```typescript
 @web.Controller('casual2')
 class CasualController extends web.AdvancedController {
 	@web.Get('another-fancy-function')
 	fancyFunction(@web.User() user?: { id: string }) {
+		console.log(`Gotcha: ${user ? user.id : 'nevermind'}`);
+	}
+
+	@web.Get('latest-fancy-function')
+	fancyFunction(@web.Auth() auth?: { id: string }) {
 		console.log(`Gotcha: ${user ? user.id : 'nevermind'}`);
 	}
 }
